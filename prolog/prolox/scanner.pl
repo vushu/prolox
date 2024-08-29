@@ -1,70 +1,60 @@
-% scanner.pl
-
 :- module(scanner,[scan/2]).
 
-% Define the main predicate for scanning input with line numbers.
-scan(Input, Tokens) :-
-    atom_chars(Input, Chars),
-    scan_tokens(Chars, 1, Tokens, []).
-
-% Predicate to handle the list of characters and produce tokens with line numbers.
-scan_tokens([], _, [], []).
-scan_tokens([H|T], Line, [Token|Tokens], Rest) :-
-    (   is_space(H)
-    ->  (H = '\n' -> NewLine is Line + 1, scan_tokens(T, NewLine, Tokens, Rest)
-       ;  scan_tokens(T, Line, Tokens, Rest))
-    ;   is_alpha(H)
-    ->  scan_identifier([H|T], Line, Token, Rest1),
-        scan_tokens(Rest1, Line, Tokens, Rest)
-    ;   is_digit(H)
-    ->  scan_number([H|T], Line, Token, Rest1),
-        scan_tokens(Rest1, Line, Tokens, Rest)
-    ;   member(H, "+-*/=;()")
-    ->  Token = token(H, operator, Line),
-        scan_tokens(T, Line, Tokens, Rest)
-    ;   throw(error(unrecognized_character(H), _))
-    ).
-
-% Predicate to recognize and extract identifiers (alphanumeric sequences).
-scan_identifier(Chars, Line, Token, Rest) :-
-    span(is_alpha_num, Chars, TokenChars, Rest),
-    atom_chars(Atom, TokenChars),
-    ( member(Atom, [var1, var2, var3]) % Example reserved keywords or identifiers
-    ->  Token = token(Atom, identifier, Line)
-    ;   Token = token(Atom, identifier, Line)
-    ).
-
-% Predicate to recognize and extract numbers (digit sequences).
-scan_number(Chars, Line, Token, Rest) :-
-    span(is_digit, Chars, NumberChars, Rest),
-    atom_chars(Atom, NumberChars),
-    number_atom(Number, Atom),
-    Token = token(Number, number, Line).
-
-% Helper predicate to check if a character is a space.
 is_space(Char) :-
-    member(Char, [' ', '\t', '\n', '\r']).
+	member(Char, [' ', '\t', '\n', '\r']).
 
-% Helper predicate to check if a character is an alphabetic character.
-is_alpha(Char) :-
-    char_type(Char, alpha).
-
-% Helper predicate to check if a character is a digit.
 is_digit(Char) :-
-    char_type(Char, digit).
+	char_type(Char, digit).
 
-% Helper predicate to check if a character is alphanumeric.
-is_alpha_num(Char) :-
-    is_alpha(Char);
-    is_digit(Char).
+get_char_at_index(String, Index, Char) :-
+	sub_atom(String, Index, 1, _, Char).
 
-% Predicate to split a list of characters based on a condition.
-span(_, [], [], []).
-span(Pred, [H|T], [H|Chars], Rest) :-
-    call(Pred, H),
-    span(Pred, T, Chars, Rest).
-span(_, L, [], L).
 
-% Helper predicate to convert an atom to a number.
-number_atom(Number, Atom) :-
-    atom_number(Atom, Number).
+% Base case: When the character is not a digit, stop and return the digits collected so far.
+
+is_dot(Ch) :-
+	char_code(Ch, 46).
+
+current_is_digit(Code, Pos, Ch) :-
+	get_char_at_index(Code, Pos, Ch), 
+	is_digit(Ch).
+
+% Recursive case: Process a digit and continue to the next character.
+
+is_at_end(Atom, Pos) :-
+	atom_length(Atom, Len), Pos > Len.
+
+%Base
+
+scan(Code, Result) :-
+	atom_codes(A, Code), 
+	atom_chars(A, CharList), 
+	scan_aux(CharList, Result).
+
+scan_aux([], []).
+
+scan_aux([H|T], Result) :-
+	is_digit(H), 
+	scan_numbers(T, Numbers, false), % write_ln(Numbers), H = Numbers, 
+	append([H], Numbers, Result).
+	scan_aux([], Result).
+
+
+scan_numbers([], [], _).
+
+scan_numbers([H|T], [H|R], HasDot) :-
+	is_digit(H), 
+	scan_numbers(T, R, HasDot).
+
+% incase of float number this rule must hold
+
+scan_numbers([H, H2, H3|T], [H, H2, H3|R], false) :-
+	is_digit(H), 
+	is_dot(H2), 
+	is_digit(H3), 
+	scan_numbers(T, R, true).
+
+
+% is_number(Code, Pos, [Ch|Result]) :-
+% 	current_is_digit(Code, Pos, Ch), 
+% 	is_number(Code, Pos, Result).
