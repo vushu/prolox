@@ -1,9 +1,9 @@
 % scanner.pl
 
-:- module(scanner_old,[scan/2]).
+:- module(scanner_old,[scan_old/2]).
 
 % Define the main predicate for scanning input with line numbers.
-scan(Input, Tokens) :-
+scan_old(Input, Tokens) :-
     atom_chars(Input, Chars),
     scan_tokens(Chars, 1, Tokens, []).
 
