@@ -12,7 +12,12 @@ token_kind(left_paren)  --> ['('].
 token_kind(right_paren) --> [')'].
 token_kind(left_brace)  --> ['{'].
 token_kind(right_brace) --> ['}'].
+token_kind(comma) --> [','].
 token_kind(dot) --> ['.'].
+token_kind(minus) --> ['-'].
+token_kind(plus) --> ['+'].
+token_kind(semicolon) --> [';'].
+token_kind(star) --> ['*'].
 token_kind(number(Value)) --> number_chars(Chars), { number_chars(Value, Chars) }. % Convert to number
 
 %{ format("Is digit ~w~n", Digit) },
@@ -24,19 +29,6 @@ extract_numbers([]) --> [].
 
 extract_decimals([Digit | Rest]) --> is_digit(Digit), extract_decimals(Rest).
 extract_decimals([]) --> [].
-
-
-% % DCG rule to match a sequence of characters that form a number
-% number_chars([Digit | Rest]) --> digit(Digit), number_chars_rest(Rest).
-% number_chars_rest([Digit | Rest]) --> digit(Digit), number_chars_rest(Rest).
-% number_chars_rest([ '.' | Rest]) --> ['.'], decimal_numbers(Rest).
-% number_chars_rest([]) --> [].
-
-% decimal_numbers([Digit | Rest]) --> digit(Digit), decimal_numbers(Rest).
-% decimal_numbers([]) --> [].
-
-% number_chars_after_dot([Digit | Rest]) --> digit(Digit), number_chars_rest(Rest).
-% number_chars_after_dot([]) --> [].
 
 % % DCG rule to match a single digit
 is_digit(D) --> [D], { char_type(D, digit) }.
