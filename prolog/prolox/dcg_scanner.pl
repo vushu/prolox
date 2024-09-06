@@ -1,11 +1,23 @@
-% Main DCG rule to produce a list of tokens
+tokens(Tokens, Line) -->
+    whitespace,
+    comment(Line, NextLine), 
+    whitespace,
+    tokens(Tokens, NextLine).
+
 tokens([Token | RestTokens], Line) -->
     whitespace,
     newline(Line, NextLine),
     token_kind(T),
-    {Token  = token(T, NextLine)}, % Match a single token
-    tokens(RestTokens, NextLine).    % Recursively match the rest of the tokens
-tokens([], _) --> whitespace, [].          % Base case: no more tokens
+    {Token  = token(T, NextLine)}, 
+    tokens(RestTokens, NextLine). 
+
+tokens([], _) --> whitespace, [].
+
+comment(Line, NextLine) --> ['/','/'], skip_until_newline(Line, NextLine).
+
+skip_until_newline(Line, NextLine) --> {NextLine is Line + 1}, ['\n'].
+skip_until_newline(Line, NextLine) --> [X],  {format("Skipping: ~w \n", X)}, skip_until_newline(Line, NextLine).
+skip_until_newline(_, _) --> [],tokens([], _), !.
 
 % DCG rules to recognize specific tokens
 token_kind(left_paren)  --> ['('].
@@ -18,11 +30,28 @@ token_kind(minus) --> ['-'].
 token_kind(plus) --> ['+'].
 token_kind(semicolon) --> [';'].
 token_kind(star) --> ['*'].
-token_kind(number(Value)) --> number_chars(Chars), { number_chars(Value, Chars) }. % Convert to number
+token_kind(bang_equal) --> ['!','='].
+token_kind(bang) --> ['!'].
+token_kind(equal_equal) --> ['=','='] .
+token_kind(equal) --> ['='].
+token_kind(less_equal) --> ['<','='].
+token_kind(less) --> ['<'].
+token_kind(greater_equal) --> ['>','='].
+token_kind(greater) --> ['>'].
+token_kind(slash) --> ['/'].
+token_kind(number(Value)) --> initial_numbers(Chars), { number_chars(Value, Chars) }. % Convert to number
+token_kind(identifier(Value)) --> get_alpha(Chars), { string_chars(Value, Chars) }.
+token_kind(string(Value)) --> get_string(Chars), { string_chars(Value, Chars)}.
 
-%{ format("Is digit ~w~n", Digit) },
+get_string(String) --> ['"'], extract_string(String).
+extract_string([Ch| Rest]) --> [Ch], extract_string(Rest).
+extract_string([]) --> ['"'].
 
-number_chars([Digit | Rest]) --> is_digit(Digit), extract_numbers(Rest).
+get_alpha([Ch| Rest]) --> is_alphabet(Ch), extract_alpha(Rest).
+extract_alpha([Ch | Rest]) --> is_alpha_numberic(Ch), extract_alpha(Rest).
+extract_alpha([]) --> [].
+
+initial_numbers([Digit | Rest]) --> is_digit(Digit), extract_numbers(Rest).
 extract_numbers([Digit | Rest]) --> is_digit(Digit), extract_numbers(Rest).
 extract_numbers(['.', Digit | Rest]) --> ['.'], is_digit(Digit), extract_decimals(Rest).
 extract_numbers([]) --> [].
@@ -31,7 +60,10 @@ extract_decimals([Digit | Rest]) --> is_digit(Digit), extract_decimals(Rest).
 extract_decimals([]) --> [].
 
 % % DCG rule to match a single digit
+is_alpha_numberic(A)  --> is_alphabet(A); is_digit(A).
 is_digit(D) --> [D], { char_type(D, digit) }.
+is_alphabet(Ch) --> [Ch], { is_alpha(Ch) }.
+is_quote(Ch) --> ['"'].
 
 
 % DCG rule to match and skip whitespace characters
@@ -44,7 +76,6 @@ newline(Line, NextLine) --> ['\n'], { NextLine is Line + 1  }, newline(NextLine,
 newline(Line, Line) --> [].  % Base case
 
 
-% Helper predicate to tokenize a string
-tokenize_string(String, Tokens) :-
+scan(String, Tokens) :-
     string_chars(String, CharList),  % Convert string to list of characters
     phrase(tokens(Tokens, 1), CharList).  % Apply the DCG to produce tokens
