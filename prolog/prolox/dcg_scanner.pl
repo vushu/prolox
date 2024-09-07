@@ -40,8 +40,29 @@ token_kind(greater_equal) --> ['>','='].
 token_kind(greater) --> ['>'].
 token_kind(slash) --> ['/'].
 token_kind(number(Value)) --> initial_numbers(Chars), { number_chars(Value, Chars) }. % Convert to number
-token_kind(identifier(Value)) --> get_alpha(Chars), { string_chars(Value, Chars) }.
+token_kind(Result) --> get_keyword_or_identifier(Result).
 token_kind(string(Value)) --> get_string(Chars), { string_chars(Value, Chars)}.
+token_kind([]) --> [Ch], {throw(format("Unknown character '~w'", Ch))}.
+
+get_keyword_or_identifier(Result) --> get_alpha(Chars), {string_chars(Value, Chars), keyword(Value, Result)}.
+
+keyword("and", and).
+keyword("class", class).
+keyword("else", else).
+keyword("false", false).
+keyword("for", for).
+keyword("fun", fun).
+keyword("if", if).
+keyword("nil", nil).
+keyword("or", or).
+keyword("print", print).
+keyword("return", return).
+keyword("super", super).
+keyword("this", this).
+keyword("true", true).
+keyword("var", var).
+keyword("while", while).
+keyword(X, identifier(X)).  % is then identifier
 
 get_string(String) --> ['"'], extract_string(String).
 extract_string([Ch| Rest]) --> [Ch], extract_string(Rest).
@@ -63,7 +84,6 @@ extract_decimals([]) --> [].
 is_alpha_numberic(A)  --> is_alphabet(A); is_digit(A).
 is_digit(D) --> [D], { char_type(D, digit) }.
 is_alphabet(Ch) --> [Ch], { is_alpha(Ch) }.
-is_quote(Ch) --> ['"'].
 
 
 % DCG rule to match and skip whitespace characters
@@ -74,7 +94,6 @@ whitespace --> [].  % Base case: no more whitespace
 
 newline(Line, NextLine) --> ['\n'], { NextLine is Line + 1  }, newline(NextLine, _).
 newline(Line, Line) --> [].  % Base case
-
 
 scan(String, Tokens) :-
     string_chars(String, CharList),  % Convert string to list of characters
