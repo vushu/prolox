@@ -1,105 +1,102 @@
-:- module(scanner,[scan/2, make_token/2]).
+:- module(scanner,[scan/2]).
 
-	% make_token(+Kind, +Line, -Token)
-% +Kind: The type or kind of the token (e.g., identifier, keyword, operator).
-% +Line: The line number where the token appears.
-% -Token: The resulting token structure.
+tokens(Tokens, Line) -->
+    whitespace,
+    comment(Line, NextLine), 
+    whitespace,
+    tokens(Tokens, NextLine).
 
-is_space(Char) :-
-	member(Char, [' ', '\t', '\n', '\r']).
+tokens([Token | RestTokens], Line) -->
+    whitespace,
+    newline(Line, NextLine),
+    token_kind(T),
+    {Token  = token(T, NextLine)}, 
+    tokens(RestTokens, NextLine). 
 
-is_digit(Char) :-
-	char_type(Char, digit).
+tokens([], _) --> whitespace, [].
 
-get_char_at_index(String, Index, Char) :-
-	sub_atom(String, Index, 1, _, Char).
+comment(Line, NextLine) --> ['/','/'], skip_until_newline(Line, NextLine).
 
+skip_until_newline(Line, NextLine) --> {NextLine is Line + 1}, ['\n'].
+skip_until_newline(Line, NextLine) --> [X],  {format("Skipping: ~w \n", X)}, skip_until_newline(Line, NextLine).
+skip_until_newline(_, _) --> [],tokens([], _), !.
 
-% Base case: When the character is not a digit, stop and return the digits collected so far.
+% DCG rules to recognize specific tokens
+token_kind(left_paren)  --> ['('].
+token_kind(right_paren) --> [')'].
+token_kind(left_brace)  --> ['{'].
+token_kind(right_brace) --> ['}'].
+token_kind(comma) --> [','].
+token_kind(dot) --> ['.'].
+token_kind(minus) --> ['-'].
+token_kind(plus) --> ['+'].
+token_kind(semicolon) --> [';'].
+token_kind(star) --> ['*'].
+token_kind(bang_equal) --> ['!','='].
+token_kind(bang) --> ['!'].
+token_kind(equal_equal) --> ['=','='] .
+token_kind(equal) --> ['='].
+token_kind(less_equal) --> ['<','='].
+token_kind(less) --> ['<'].
+token_kind(greater_equal) --> ['>','='].
+token_kind(greater) --> ['>'].
+token_kind(slash) --> ['/'].
+token_kind(number(Value)) --> initial_numbers(Chars), { number_chars(Value, Chars) }. % Convert to number
+token_kind(Result) --> get_keyword_or_identifier(Result).
+token_kind(string(Value)) --> get_string(Chars), { string_chars(Value, Chars)}.
+token_kind([]) --> [Ch], {throw(format("Unknown character '~w'", Ch))}.
 
-is_dot(Ch) :-
-	char_code(Ch, 46).
+get_keyword_or_identifier(Result) --> get_alpha(Chars), {string_chars(Value, Chars), keyword(Value, Result)}.
 
-current_is_digit(Code, Pos, Ch) :-
-	get_char_at_index(Code, Pos, Ch), 
-	is_digit(Ch).
+keyword("and", and).
+keyword("class", class).
+keyword("else", else).
+keyword("false", false).
+keyword("for", for).
+keyword("fun", fun).
+keyword("if", if).
+keyword("nil", nil).
+keyword("or", or).
+keyword("print", print).
+keyword("return", return).
+keyword("super", super).
+keyword("this", this).
+keyword("true", true).
+keyword("var", var).
+keyword("while", while).
+keyword(X, identifier(X)).  % is then identifier
 
-% Recursive case: Process a digit and continue to the next character.
+get_string(String) --> ['"'], extract_string(String).
+extract_string([Ch| Rest]) --> [Ch], extract_string(Rest).
+extract_string([]) --> ['"'].
 
-is_at_end(Atom, Pos) :-
-	atom_length(Atom, Len), Pos > Len.
+get_alpha([Ch| Rest]) --> is_alphabet(Ch), extract_alpha(Rest).
+extract_alpha([Ch | Rest]) --> is_alpha_numberic(Ch), extract_alpha(Rest).
+extract_alpha([]) --> [].
 
-%Base
+initial_numbers([Digit | Rest]) --> is_digit(Digit), extract_numbers(Rest).
+extract_numbers([Digit | Rest]) --> is_digit(Digit), extract_numbers(Rest).
+extract_numbers(['.', Digit | Rest]) --> ['.'], is_digit(Digit), extract_decimals(Rest).
+extract_numbers([]) --> [].
 
-scan(Code, Result) :-
-	atom_codes(A, Code), 
-	atom_chars(A, CharList), 
-	scan_aux(CharList, Result).
+extract_decimals([Digit | Rest]) --> is_digit(Digit), extract_decimals(Rest).
+extract_decimals([]) --> [].
 
-scan_aux([], _).
-
-char_list_to_float(CharList, Float) :-
-	atom_chars(Atom, CharList), % Convert the char list to an atom
-
-	atom_number(Atom, Float).% Convert the atom to a number (float)
-	
-	scan_aux([C|Tail], [Tok|Result])
-	  :- (
-		is_space(C)
-		 ->
-				scan_aux(Tail, Result);
-		is_digit(C)
-		 ->
-				scan_numbers(Tail, Numbers, Rest, false), Chars = [C|Numbers], 
-		char_list_to_float(Chars, Float), 
-		make_token(
-			number(Float), 1, Tok), 
-		write_ln("Done making"), 
-		scan_aux(Rest, Result);
-		C == '('
-		 ->
-				write_ln("Left Paren"), 
-		make_token(left_paren, 1, Tok), 
-		scan_aux(Tail, Result);
-		C == ')'
-		 ->
-				write_ln("Right Paren"), 
-		make_token(right_paren, 1, Tok), 
-		scan_aux(Tail, Result);
-		C == '{'
-		 ->
-				write_ln("Right Paren"), 
-		make_token(left_brace, 1, Tok), 
-		scan_aux(Tail, Result);
-		C == '}'
-		 ->
-				write_ln("Right Paren"), 
-		make_token(right_brace, 1, Tok), 
-		scan_aux(Tail, Result);
-		otherwise ->
-			write_ln('Unexpected character'), fail).
-
-scan_numbers([], [], [], _) :-
-	write_ln("BASE Scan_numbers").
-
-scan_numbers([H|T], [H|R], Rest, HasDot) :-
-	is_digit(H), 
-	write_ln("Consuming Digit"), 
-	scan_numbers(T, R, Rest, HasDot).
-
-scan_numbers([H|T], [], [H|T], _) :-
-	 \+ is_digit(H), 
-	write_ln("Not digits left terminate").
-
-% incase of float number this rule must hold
-
-scan_numbers([H, H2, H3|Tail], [H, H2, H3|R], Rest, false) :-
-	is_digit(H), 
-	is_dot(H2), 
-	is_digit(H3), 
-	write_ln("Floatnumber!"), 
-	scan_numbers(Tail, R, Rest, true).
+% % DCG rule to match a single digit
+is_alpha_numberic(A)  --> is_alphabet(A); is_digit(A).
+is_digit(D) --> [D], { char_type(D, digit) }.
+is_alphabet(Ch) --> [Ch], { is_alpha(Ch) }.
 
 
+% DCG rule to match and skip whitespace characters
+whitespace --> ['\t'], whitespace.
+whitespace --> ['\r'], whitespace.
+whitespace --> [' '], whitespace.
+whitespace --> [].  % Base case: no more whitespace
 
-make_token(Kind, Line, token(Kind, line(Line))).
+newline(Line, NextLine) --> ['\n'], { NextLine is Line + 1  }, newline(NextLine, _).
+newline(Line, Line) --> [].  % Base case
+
+scan(String, Tokens) :-
+    string_chars(String, CharList),  % Convert string to list of characters
+    phrase(tokens(Tokens, 1), CharList).  % Apply the DCG to produce tokens

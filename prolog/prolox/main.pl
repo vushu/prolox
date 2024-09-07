@@ -1,13 +1,5 @@
-% main.pl
-
-% Load the scanner.pl file
-% use_module(scanner_old).
-% Define the main predicate
+:- use_module(scanner).
 
 main :-
-	write_ln("X").
-    
-	% Test 1
-
-	% scan("2", Tokens), 
-	% format('Tokens:": ~w~n', [Tokens]).
+	scan("2+2=", Tokens), 
+	format("Tokens: ~w", Tokens).
