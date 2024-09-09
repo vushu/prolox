@@ -5,14 +5,14 @@ parse(Tokens, Exprs) :-
 		parse_expr(Exprs), Tokens).
 
 parse_expr([Expr|Rest])-->
-	expression_stmt(Expr), 
+	statement(Expr), 
 	parse_expr(Rest).
 
 parse_expr([])-->
 	[].
 	% {throw("Failed to parse")}, [].
 
-expression_stmt(Expr)-->
+expression_stmt(expr_stmt(Expr))-->
 	expression(Expr), 
 	[token(semicolon, _)].
 
@@ -20,6 +20,38 @@ expression_stmt(_)-->
 	expression(_), 
 	
 	{throw("Expected ';' after expression.")}, [].
+
+print_stmt(print(Expr))-->
+	[token(print, _)], 
+	expression(Expr), 
+	[token(semicolon, _)].
+
+% block_stmt(Stmt)-->
+	% expression_stmt(Stmt).
+
+block_stmt(block(Stmts))-->
+	[token(left_brace, _)], 
+	block_stmt_rest(Stmts), 
+	(
+		[token(right_brace, _)];
+	
+		{throw("Expected '}' after block.")}).
+
+block_stmt_rest([Stmt|Stmts])-->
+	statement(Stmt), 
+	block_stmt_rest(Stmts).
+
+block_stmt_rest([])-->
+	[].
+
+statement(Stmt)-->
+	print_stmt(Stmt).
+
+statement(Stmt)-->
+	block_stmt(Stmt).
+
+statement(Stmt)-->
+	expression_stmt(Stmt).
 
 expression(Expr)-->
 	assignment_expr(Expr).
