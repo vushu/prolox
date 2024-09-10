@@ -5,7 +5,7 @@ parse(Tokens, Exprs) :-
 		parse_expr(Exprs), Tokens).
 
 parse_expr([Expr|Rest])-->
-	statement(Expr), 
+	var_declaration_stmt(Expr), 
 	parse_expr(Rest).
 
 parse_expr([])-->
@@ -38,11 +38,28 @@ block_stmt(block(Stmts))-->
 		{throw("Expected '}' after block.")}).
 
 block_stmt_rest([Stmt|Stmts])-->
-	statement(Stmt), 
+	var_declaration_stmt(Stmt), 
 	block_stmt_rest(Stmts).
 
 block_stmt_rest([])-->
 	[].
+
+%var_declaration
+
+var_declaration_stmt(Stmt)-->
+	statement(Stmt).
+
+var_declaration_stmt(var_decl(name(T), intializer(Stmt)))-->
+	[token(var, _)], [T], 
+	
+	{T = token(
+		identifier(_), _)}, 
+	[token(equal, _)], 
+	expression(Stmt), 
+	(
+		[token(semicolon, _)];
+	
+		{throw("Expected ';' after var declaration.")}).
 
 statement(Stmt)-->
 	print_stmt(Stmt).
