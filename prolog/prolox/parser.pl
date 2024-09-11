@@ -1,8 +1,9 @@
 :- module(parser,[parse/2]).
 
 parse(Tokens, Exprs) :-
-	once(phrase(
-		parse_expr(Exprs), Tokens)).
+	once(
+		phrase(
+			parse_expr(Exprs), Tokens)).
 
 parse_expr([Expr|Rest])-->
 	var_declaration_stmt(Expr), 
@@ -26,16 +27,20 @@ print_stmt(print(Expr))-->
 	expression(Expr), 
 	[token(semicolon, _)].
 
-% block_stmt(Stmt)-->
-	% expression_stmt(Stmt).
-
 block_stmt(block(Stmts))-->
 	[token(left_brace, _)], 
 	block_stmt_rest(Stmts), 
 	(
-		[token(right_brace, _)];
-	
-		{throw("Expected '}' after block.")}).
+		[token(right_brace, _)]% {throw("Expected '}' after block.")}
+		).
+
+% empty block
+
+block_stmt(block([]))-->
+	[token(left_brace, _)], 
+	(
+		[token(right_brace, _)]% {throw("Expected '}' after block.")}
+		).
 
 block_stmt_rest([Stmt|Stmts])-->
 	var_declaration_stmt(Stmt), 
@@ -61,11 +66,33 @@ var_declaration_stmt(var_decl(name(T), intializer(Stmt)))-->
 	
 		{throw("Expected ';' after var declaration.")}).
 
+if_stmt(Stmt)-->
+	if_else_stmt(Stmt).
+
+if_stmt(if(condition(Expr), then(Stmt)))-->
+	[token(if, _)], 
+	[token(left_paren, _)], 
+	expression(Expr), 
+	[token(right_paren, _)], 
+	block_stmt(Stmt).
+
+if_else_stmt(if(condition(Expr), then(Stmt), else(ElseBlock)))-->
+	[token(if, _)], 
+	[token(left_paren, _)], 
+	expression(Expr), 
+	[token(right_paren, _)], 
+	block_stmt(Stmt), 
+	[token(else, _)], 
+	block_stmt(ElseBlock).
+
 statement(Stmt)-->
 	print_stmt(Stmt).
 
 statement(Stmt)-->
 	block_stmt(Stmt).
+
+statement(Stmt)-->
+	if_stmt(Stmt).
 
 statement(Stmt)-->
 	expression_stmt(Stmt).
