@@ -99,4 +99,4 @@ newline(Line, Line) --> [].  % Base case
 
 scan(String, Tokens) :-
     string_chars(String, CharList),  % Convert string to list of characters
-    phrase(tokens(Tokens, 1), CharList).  % Apply the DCG to produce tokens
+    once(phrase(tokens(Tokens, 1), CharList)).  % Apply the DCG to produce tokens

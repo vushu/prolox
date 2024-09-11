@@ -1,8 +1,8 @@
 :- module(parser,[parse/2]).
 
 parse(Tokens, Exprs) :-
-	phrase(
-		parse_expr(Exprs), Tokens).
+	once(phrase(
+		parse_expr(Exprs), Tokens)).
 
 parse_expr([Expr|Rest])-->
 	var_declaration_stmt(Expr), 

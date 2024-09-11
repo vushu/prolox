@@ -2,9 +2,9 @@
 :- use_module(prolog/prolox/parser).
 :- use_module(prolog/prolox/scanner).
 
-test(parse) :-
-	once(scan("2+2;", Tokens)), 
-	once(parse(Tokens, 
+test(parse_term) :-
+	scan("2+2;", Tokens), 
+	parse(Tokens, 
 		[expr_stmt(
 			term(
 				left(
@@ -13,7 +13,61 @@ test(parse) :-
 				right(
 					primary(
 						number(2))), 
-				op(plus)))])).
+				op(plus)))]).
+
+test(parse_factor) :-
+	scan("2*2;", Tokens), 
+	parse(Tokens, 
+		[expr_stmt(
+			factor(
+				left(
+					primary(
+						number(2))), 
+				right(
+					primary(
+						number(2))), 
+				op(star)))]).
+
+test(parse_block) :-
+	scan("{2*2;}", Tokens), 
+	parse(Tokens, 
+		[block(
+			[expr_stmt(
+				factor(
+					left(
+						primary(
+							number(2))), 
+					right(
+						primary(
+							number(2))), 
+					op(star)))])]).
+
+test(parse_var_decl) :-
+	scan("{var a = b;}", Tokens), 
+	parse(Tokens, 
+		[block(
+			[var_decl(
+				name(
+					token(
+						identifier("a"), 1)), 
+				intializer(
+					primary(
+						token(
+							identifier("b"), 1))))])]).
+
+test(parse_comparison) :-
+	scan("42 >= 10;", Tokens), 
+	parse(Tokens, 
+		[expr_stmt(
+			comparison(
+				left(
+					primary(
+						number(42))), 
+				right(
+					primary(
+						number(10))), 
+				op(
+					token(greater_equal, 1))))]).
 :- end_tests(parse_tokens).
 
 
