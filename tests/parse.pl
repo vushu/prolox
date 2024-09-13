@@ -68,6 +68,11 @@ test(parse_comparison) :-
 						number(10))), 
 				op(
 					token(greater_equal, 1))))]).
+
+test(parse_if_stmt) :-
+	scan("if (true) { print 223;}", Tokens), 
+	parse(Tokens, 
+		[if(condition(primary(true)),then(block([print(primary(number(223)))])),else(none))]).
 :- end_tests(parse_tokens).
 
 

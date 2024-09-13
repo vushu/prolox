@@ -31,16 +31,18 @@ block_stmt(block(Stmts))-->
 	[token(left_brace, _)], 
 	block_stmt_rest(Stmts), 
 	(
-		[token(right_brace, _)]% {throw("Expected '}' after block.")}
-		).
+		[token(right_brace, _)];
+	
+		{throw("Expected '}' after block.")}).
 
 % empty block
 
 block_stmt(block([]))-->
 	[token(left_brace, _)], 
 	(
-		[token(right_brace, _)]% {throw("Expected '}' after block.")}
-		).
+		[token(right_brace, _)];
+	
+		{throw("Expected '}' after block.")}).
 
 block_stmt_rest([Stmt|Stmts])-->
 	var_declaration_stmt(Stmt), 
@@ -66,24 +68,30 @@ var_declaration_stmt(var_decl(name(T), intializer(Stmt)))-->
 	
 		{throw("Expected ';' after var declaration.")}).
 
-if_stmt(Stmt)-->
-	if_else_stmt(Stmt).
-
-if_stmt(if(condition(Expr), then(Stmt)))-->
-	[token(if, _)], 
-	[token(left_paren, _)], 
-	expression(Expr), 
-	[token(right_paren, _)], 
-	block_stmt(Stmt).
-
-if_else_stmt(if(condition(Expr), then(Stmt), else(ElseBlock)))-->
+if_stmt(if(condition(Expr), then(Stmt), else(ElseBlock)))-->
 	[token(if, _)], 
 	[token(left_paren, _)], 
 	expression(Expr), 
 	[token(right_paren, _)], 
 	block_stmt(Stmt), 
-	[token(else, _)], 
-	block_stmt(ElseBlock).
+	has_else_block(ElseBlock).
+
+has_else_block(Res)-->
+	(
+		[token(else, _), 
+		token(left_brace, _)], 
+		get_expr_stmts(Stmts), 
+	
+		{Res = some(Stmts)}, 
+		[token(right_brace, _)]);
+	{Res = none}.
+
+get_expr_stmts([Stmt|Stmts])-->
+	expression_stmt(Stmt), 
+	get_expr_stmts(Stmts).
+
+get_expr_stmts([])-->
+	[].
 
 statement(Stmt)-->
 	print_stmt(Stmt).

@@ -6,7 +6,9 @@ main :-
 % scan("{2+2;2+3;print mama;{2+2;}}", Tokens), % writeln(Tokens),
 % scan("var a = 2;", Tokens), % writeln(Tokens),
 
-	scan("if (2 > 1) { print \"2 is greater!\" ;}", Tokens), % writeln(Tokens),
+	% scan("if (2 > 1) { print \"2 is greater!\" ;}", Tokens), % writeln(Tokens),
+
+scan("if (true) { print 223;}", Tokens),
 	% scan("if (2 > 1) { print (3 + 2); } else { 2+2;}", Tokens), % writeln(Tokens),
 	
 	parse(Tokens, Exprs), 
