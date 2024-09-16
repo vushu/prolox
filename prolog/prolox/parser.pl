@@ -151,7 +151,7 @@ assignment_expr(assigment(assign_name(E), value(E2)))-->
 or_expr(E)-->
 	and_expr(E).
 
-or_expr(and(left(E), right(E2), op(T)))-->
+or_expr(or(left(E), right(E2), op(T)))-->
 	and_expr(E), [T], 
 	
 	{T = token(or, _)}, 

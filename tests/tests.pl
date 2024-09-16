@@ -1,2 +1,2 @@
-:- load_files([tests/scan, tests/parse]).
+:- load_files([tests/scan, tests/parse, tests/interpret]).
 

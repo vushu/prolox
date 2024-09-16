@@ -10,8 +10,7 @@ main :-
 % scan("if (true) { print 223;}", Tokens),
 % scan("if (2 > 1) { print (3 + 2); } else { 2+2;}", Tokens), % writeln(Tokens),
 
-	scan("print 42;", Tokens), % writeln(Tokens),
+	scan("print 2+2;", Tokens), % writeln(Tokens),
 	
 	parse(Tokens, Stmts), 
-	writeln(Stmts), 
 	interpret(Stmts).
