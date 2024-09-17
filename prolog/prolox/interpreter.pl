@@ -12,7 +12,7 @@ evaluate_rest([]).
 
 evaluate(print(X), _) :-
 	evaluate(X, R), 
-	format("~w~n", R), !.
+	format("printing: ~w~n", R), !.
 
 evaluate(primary(true), true).
 
@@ -45,12 +45,37 @@ evaluate(term(left(L), right(R), op(Op)), Res) :-
 
 evaluate(or(left(L), right(R), op(token(or, _))), Res) :-
 	evaluate(L, L2), 
-	evaluate(R, R2), Res is L2;
-	R2.
+	is_truthy(L2, T), 
+	evaluate(R, R2), 
+	is_truthy(R2, T2), 
+	(T = true, Res = L2;
+	T2 = true, Res = R2;
+	Res = false).
 
 evaluate(and(left(L), right(R), op(token(and, _))), Res) :-
 	evaluate(L, L2), 
-	evaluate(R, R2), Res is L2, R2.
+	is_truthy(L2, T), 
+	evaluate(R, R2), 
+	is_truthy(R2, T2), 
+	(T = true, T2 = true, Res = true;
+	Res = false).
+
+evaluate(comparison(left(L), right(R), op(token(Op, _))), Res) :-
+	evaluate(L, L2), 
+	evaluate(R, R2), 
+	(Op = greater, L2 > R2, Res = true;
+	Op = greater_equal, L2 >= R2, Res = true;
+	Op = less, L2 < R2, Res = true;
+	Op = less_equal, L2 =< R2, Res = true;
+	Res = false).
+
+
+% equality_expr(equality(left(E), right(E2), op(Op)))-->
 
 evaluate(_, _) :-
 	writeln("Unknown stmt").
+
+is_truthy(true, true).
+is_truthy(false, false).
+is_truthy(nil, false).
+is_truthy(_, true).
