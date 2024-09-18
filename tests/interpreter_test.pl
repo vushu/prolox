@@ -28,4 +28,10 @@ test(interpret_greater_equal) :-
 	parse(Tokens, Stmts), 
 	interpret(Stmts).
 
+test(interpret_equality) :-
+	scan("print 1 == 1; print 1 != 42;", Tokens), 
+	parse(Tokens, Stmts), 
+	interpret(Stmts).
+
+
 :- end_tests(interpret_stmts).

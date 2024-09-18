@@ -69,11 +69,15 @@ evaluate(comparison(left(L), right(R), op(token(Op, _))), Res) :-
 	Op = less_equal, L2 =< R2, Res = true;
 	Res = false).
 
-
-% equality_expr(equality(left(E), right(E2), op(Op)))-->
+evaluate(equality(left(L), right(R), op(token(Op, _))), Res) :-
+	evaluate(L, L2), 
+	evaluate(R, R2), 
+	(Op = bang_equal, not(L2 = R2), Res = true;
+	 Op = equal_equal, L2 == R2, Res = true;
+	Res = false).
 
 evaluate(_, _) :-
-	writeln("Unknown stmt").
+	writeln("Unknown stmt"), halt.
 
 is_truthy(true, true).
 is_truthy(false, false).

@@ -134,7 +134,7 @@ comparison_op(T)-->
 	{T = token(Op, _), 
 	memberchk(Op, [greater, greater_equal, less, less_equal])}.
 
-equality_op(Op)-->
+equality_op(T)-->
 	[T], 
 	
 	{T = token(Op, _), 
