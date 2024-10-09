@@ -1,14 +1,16 @@
 :- module(interpreter,[interpret/1]).
 
 interpret([Stmt|Stmts]) :-
-	evaluate(Stmt, _), 
-	evaluate_rest(Stmts).
+	C = context(
+		res(_), _), 
+	evaluate(Stmt, C), 
+	evaluate_rest(Stmts, C).
 
-evaluate_rest([Stmt|Stmts]) :-
-	evaluate(Stmt, _), 
-	evaluate_rest(Stmts).
+evaluate_rest([Stmt|Stmts], C) :-
+	evaluate(Stmt, C), 
+	evaluate_rest(Stmts, C).
 
-evaluate_rest([]).
+evaluate_rest([], _).
 
 evaluate(print(X), _) :-
 	evaluate(X, R), 
@@ -72,12 +74,31 @@ evaluate(comparison(left(L), right(R), op(token(Op, _))), Res) :-
 evaluate(equality(left(L), right(R), op(token(Op, _))), Res) :-
 	evaluate(L, L2), 
 	evaluate(R, R2), 
-	(Op = bang_equal, not(L2 = R2), Res = true;
-	 Op = equal_equal, L2 == R2, Res = true;
-	Res = false).
+	(Op = bang_equal, 
+		not(L2 = R2), Res = true;
+		Op = equal_equal, L2 == R2, Res = true;
+		Res = false).
+
+evaluate(group(E), R) :-
+	evaluate(E, R).
+
+evaluate(unary(op(token(Op, _)), right(E)), R) :-
+	evaluate(E, E2), 
+	(Op = bang, 
+		negate(E2, R);
+		Op = minus, R is  - E2;
+		format("Op is unknown: ~w~n", Op), !).
+
+
+% evaluate(block(Stmts), Res) :-
+
+% execute_block([Stmt|Stmts])
 
 evaluate(_, _) :-
 	writeln("Unknown stmt"), halt.
+
+negate(true, false).
+negate(false, true).
 
 is_truthy(true, true).
 is_truthy(false, false).

@@ -33,5 +33,19 @@ test(interpret_equality) :-
 	parse(Tokens, Stmts), 
 	interpret(Stmts).
 
+test(interpret_group) :-
+	scan("print (1 != 1);", Tokens), 
+	parse(Tokens, Stmts), 
+	interpret(Stmts).
+
+test(interpret_unary_bang) :-
+	scan("print !!!true;", Tokens), 
+	parse(Tokens, Stmts), 
+	interpret(Stmts).
+
+test(interpret_unary_minus) :-
+	scan("print ---100;", Tokens), 
+	parse(Tokens, Stmts), 
+	interpret(Stmts).
 
 :- end_tests(interpret_stmts).
