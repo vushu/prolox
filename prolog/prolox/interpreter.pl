@@ -1,4 +1,5 @@
 :- module(interpreter,[interpret/1]).
+:- use_module(environment).
 
 interpret([Stmt|Stmts]) :-
 	C = context(
@@ -89,13 +90,26 @@ evaluate(unary(op(token(Op, _)), right(E)), R) :-
 		Op = minus, R is  - E2;
 		format("Op is unknown: ~w~n", Op), !).
 
+evaluate(expr_stmt(Expr), Env) :-
+	create_new_env(Env), 
+	evaluate(Expr, Env).
 
-% evaluate(block(Stmts), Res) :-
+% evaluate(block([Stmt|Stmts]), S) :-
+% 	evaluate(Stmt, S), 
+% 	evaluate_block_rest(Stmts, S).
 
-% execute_block([Stmt|Stmts])
+% evaluate_block_rest([Stmt|Stmts], S) :-
+% 	evaluate(Stmt, S), 
+% 	evaluate_block_rest(Stmts, S).
+
+% evaluate_block_rest([], _).
+
 
 evaluate(_, _) :-
 	writeln("Unknown stmt"), halt.
+
+% block_stmt(block(Stmts))-->
+
 
 negate(true, false).
 negate(false, true).

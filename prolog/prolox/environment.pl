@@ -1,4 +1,4 @@
-:- module(environment,[create_new_env/1]).
+:- module(environment,[create_new_env/1, define_var/4, get_var/3]).
 
 create_new_env(env([], none)).
 
