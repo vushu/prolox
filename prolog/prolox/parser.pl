@@ -56,7 +56,7 @@ block_stmt_rest([])-->
 var_declaration_stmt(Stmt)-->
 	statement(Stmt).
 
-var_declaration_stmt(var_decl(name(T), intializer(Stmt)))-->
+var_declaration_stmt(var_decl(name(T), initializer(Stmt)))-->
 	[token(var, _)], [T], 
 	
 	{T = token(

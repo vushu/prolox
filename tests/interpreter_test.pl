@@ -6,7 +6,8 @@
 test(interpret_term) :-
 	scan("print 2 + 2;", Tokens), 
 	parse(Tokens, Stmts), 
-	interpret(Stmts).
+	once(
+		interpret(Stmts)).
 
 test(interpret_or) :-
 	scan("print false or 42;", Tokens), 
@@ -46,7 +47,8 @@ test(interpret_unary_bang) :-
 test(interpret_unary_minus) :-
 	scan("print ---100;", Tokens), 
 	parse(Tokens, Stmts), 
-	interpret(Stmts).
+	once(
+		interpret(Stmts)).
 
 test(interpret_binary_minus) :-
 	scan("print 100-1;", Tokens), 
@@ -62,7 +64,12 @@ test(interpret_block_stmt) :-
 		print 5;
 		 }", Tokens), 
 	parse(Tokens, Stmts), 
-	once(
-		interpret(Stmts)).
+	interpret(Stmts).
+
+test(interpret_var_decl) :-
+	scan("var hej = 1;", Tokens), 
+	parse(Tokens, Stmts), 
+	interpret(Stmts).
+
 
 :- end_tests(interpret_stmts).

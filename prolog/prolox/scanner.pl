@@ -33,7 +33,10 @@ token_kind(token(greater_equal, Line), Line) --> ['>','='].
 token_kind(token(greater, Line), Line) --> ['>'].
 token_kind(X, Line) --> ['/', '/'],{ writeln("comment detected") }, skip_until_newline(Line, NextLine), token_kind(X, NextLine).
 token_kind(token(slash, Line), Line) --> ['/'].
-token_kind(X, Line) --> ['\n'], { writeln("newline detected"), UpdateLine is Line + 1 }, token_kind(X, UpdateLine).
+token_kind(X, Line) --> ['\n'], { 
+    % writeln("newline detected"),
+ UpdateLine is Line + 1 },
+token_kind(X, UpdateLine).
 token_kind(X, Line) --> ['\t'], token_kind(X, Line).
 token_kind(X, Line) --> [' '], token_kind(X, Line).
 token_kind(token(number(Value), Line), Line) --> initial_numbers(Chars), { number_chars(Value, Chars) }. % Convert to number

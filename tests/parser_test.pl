@@ -48,18 +48,8 @@ test(parse_block) :-
 							number(2))), 
 					op(star)))])]).
 
-test(parse_var_decl) :-
-	scan("{var a = b;}", Tokens), 
-	parse(Tokens, 
-		[block(
-			[var_decl(
-				name(
-					token(
-						identifier("a"), 1)), 
-				intializer(
-					primary(
-						token(
-							identifier("b"), 1))))])]).
+test(parse_var_decl_inside_block) :-
+	scan("{var a = b;}", Tokens), parse(Tokens, Stmts), writeln(Stmts), Stmts = [block([var_decl(name(token(identifier("a"), 1)), intializer(primary(token(identifier("b"), 1))))])]).
 
 test(parse_comparison) :-
 	scan("42 >= 10;", Tokens), 
@@ -95,8 +85,41 @@ test(parse_block_stmt) :-
 		print 2; 
 		print 3; 
 		}", Tokens), 
-	parse(Tokens, Stmts), 
-	print_list(Stmts).
+	parse(Tokens, 
+		[block(
+			[print(
+				primary(
+					group(
+						term(
+							left(
+								primary(
+									number(42))), 
+							right(
+								primary(
+									number(40))), 
+							op(minus))))), 
+			print(
+				primary(
+					number(1))), 
+			print(
+				primary(
+					number(2))), 
+			print(
+				primary(
+					number(3)))])]).
+	% print_list(Stmts).
+
+test(parse_var_decl) :-
+	scan("var a = b;", Tokens), 
+	parse(Tokens, 
+		[var_decl(
+			name(
+				token(
+					identifier("a"), 1)), 
+			initializer(
+				primary(
+					token(
+						identifier("b"), 1))))]).
 
 :- end_tests(parse_tokens).
 
