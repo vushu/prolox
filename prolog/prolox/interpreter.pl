@@ -1,8 +1,10 @@
 :- module(interpreter,[interpret/1]).
 :- use_module(environment).
 
+:- discontiguous evaluate/3.
+
 interpret([Stmt|Stmts]) :-
-	create_new_env(Env), 
+	create_new_env(none, Env), 
 	evaluate(Stmt, Env, C), 
 	evaluate_rest(Stmts, Env, C).
 
@@ -92,15 +94,16 @@ evaluate(unary(op(token(Op, _)), right(E)), Env, R) :-
 evaluate(expr_stmt(Expr), Env, R) :-
 	evaluate(Expr, Env, R).
 
-% evaluate(block([Stmt|Stmts]), S) :-
-% 	evaluate(Stmt, S), 
-% 	evaluate_block_rest(Stmts, S).
+evaluate(block([Stmt|Stmts]),Env, S) :-
+	% writeln("Block-stmt"),
+	evaluate(Stmt, Env, S), 
+	evaluate_block_rest(Stmts, Env, S).
 
-% evaluate_block_rest([Stmt|Stmts], S) :-
-% 	evaluate(Stmt, S), 
-% 	evaluate_block_rest(Stmts, S).
+evaluate_block_rest([Stmt|Stmts], Env, S) :-
+	evaluate(Stmt,Env, S), 
+	evaluate_block_rest(Stmts,Env, S).
 
-% evaluate_block_rest([], _, _).
+evaluate_block_rest([], _, _).
 
 evaluate(_, _, _) :-
 	writeln("Unknown stmt"), halt.

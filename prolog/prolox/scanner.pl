@@ -1,50 +1,45 @@
 :- module(scanner,[scan/2]).
 
-tokens(Tokens, Line) -->
-    whitespace,
-    comment(Line, NextLine), 
-    whitespace,
-    tokens(Tokens, NextLine).
+tokens([Token | RestTokens]) -->
+    token_kind(Token, 1),
+    tokens(RestTokens). 
 
-tokens([Token | RestTokens], Line) -->
-    whitespace,
-    newline(Line, NextLine),
-    token_kind(T),
-    {Token  = token(T, NextLine)}, 
-    tokens(RestTokens, NextLine). 
-
-tokens([], _) --> whitespace, [].
+tokens([]) --> [].
 
 comment(Line, NextLine) --> ['/','/'], skip_until_newline(Line, NextLine).
 
 skip_until_newline(Line, NextLine) --> {NextLine is Line + 1}, ['\n'].
 skip_until_newline(Line, NextLine) --> [X],  {format("Skipping: ~w \n", X)}, skip_until_newline(Line, NextLine).
-skip_until_newline(_, _) --> [],tokens([], _), !.
+skip_until_newline(_, _) --> [],tokens([]), !.
 
 % DCG rules to recognize specific tokens
-token_kind(left_paren)  --> ['('].
-token_kind(right_paren) --> [')'].
-token_kind(left_brace)  --> ['{'].
-token_kind(right_brace) --> ['}'].
-token_kind(comma) --> [','].
-token_kind(dot) --> ['.'].
-token_kind(minus) --> ['-'].
-token_kind(plus) --> ['+'].
-token_kind(semicolon) --> [';'].
-token_kind(star) --> ['*'].
-token_kind(bang_equal) --> ['!','='].
-token_kind(bang) --> ['!'].
-token_kind(equal_equal) --> ['=','='] .
-token_kind(equal) --> ['='].
-token_kind(less_equal) --> ['<','='].
-token_kind(less) --> ['<'].
-token_kind(greater_equal) --> ['>','='].
-token_kind(greater) --> ['>'].
-token_kind(slash) --> ['/'].
-token_kind(number(Value)) --> initial_numbers(Chars), { number_chars(Value, Chars) }. % Convert to number
-token_kind(Result) --> get_keyword_or_identifier(Result).
-token_kind(string(Value)) --> get_string(Chars), { string_chars(Value, Chars)}.
-token_kind([]) --> [Ch], {throw(format("Unknown character '~w'", Ch))}.
+token_kind(token(left_paren, Line), Line)  --> ['('].
+token_kind(token(right_paren, Line), Line) --> [')'].
+token_kind(token(left_brace, Line), Line)  --> ['{'].
+token_kind(token(right_brace, Line), Line) --> ['}'].
+token_kind(token(comma, Line), Line) --> [','].
+token_kind(token(dot, Line), Line) --> ['.'].
+token_kind(token(minus, Line), Line) --> ['-'].
+token_kind(token(plus, Line ), Line) --> ['+'].
+token_kind(token(semicolon, Line), Line) --> [';'].
+token_kind(token(star, Line), Line) --> ['*'].
+token_kind(token(bang_equal, Line), Line) --> ['!','='].
+token_kind(token(bang, Line), Line) --> ['!'].
+token_kind(token(equal_equal, Line), Line) --> ['=','='] .
+token_kind(token(equal, Line), Line) --> ['='].
+token_kind(token(less_equal, Line), Line) --> ['<','='].
+token_kind(token(less, Line), Line) --> ['<'].
+token_kind(token(greater_equal, Line), Line) --> ['>','='].
+token_kind(token(greater, Line), Line) --> ['>'].
+token_kind(X, Line) --> ['/', '/'],{ writeln("comment detected") }, skip_until_newline(Line, NextLine), token_kind(X, NextLine).
+token_kind(token(slash, Line), Line) --> ['/'].
+token_kind(X, Line) --> ['\n'], { writeln("newline detected"), UpdateLine is Line + 1 }, token_kind(X, UpdateLine).
+token_kind(X, Line) --> ['\t'], token_kind(X, Line).
+token_kind(X, Line) --> [' '], token_kind(X, Line).
+token_kind(token(number(Value), Line), Line) --> initial_numbers(Chars), { number_chars(Value, Chars) }. % Convert to number
+token_kind(token(Result, Line), Line) --> get_keyword_or_identifier(Result).
+token_kind(token(string(Value), Line), Line) --> get_string(Chars), { string_chars(Value, Chars)}.
+token_kind(token([], Line), Line) --> [Ch], {throw(format("Unknown character '~w'", Ch))}.
 
 get_keyword_or_identifier(Result) --> get_alpha(Chars), {string_chars(Value, Chars), keyword(Value, Result)}.
 
@@ -99,4 +94,5 @@ newline(Line, Line) --> [].  % Base case
 
 scan(String, Tokens) :-
     string_chars(String, CharList),  % Convert string to list of characters
-    once(phrase(tokens(Tokens, 1), CharList)).  % Apply the DCG to produce tokens
+    once(phrase(tokens(Tokens), CharList)).  % Apply the DCG to produce tokens
+    

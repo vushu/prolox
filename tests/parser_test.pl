@@ -2,6 +2,12 @@
 :- use_module(prolog/prolox/parser).
 :- use_module(prolog/prolox/scanner).
 
+print_list([]).
+
+print_list([H|T]) :-
+	format("AST -------------~n ~w~n", H), 
+	print_list(T).
+
 test(parse_term) :-
 	scan("2+2;", Tokens), 
 	parse(Tokens, 
@@ -72,7 +78,26 @@ test(parse_comparison) :-
 test(parse_if_stmt) :-
 	scan("if (true) { print 223;}", Tokens), 
 	parse(Tokens, 
-		[if(condition(primary(true)),then(block([print(primary(number(223)))])),else(none))]).
+		[if(
+			condition(
+				primary(true)), 
+			then(
+				block(
+					[print(
+						primary(
+							number(223)))])), 
+			else(none))]).
+
+test(parse_block_stmt) :-
+	scan("{ 
+		print (42 - 40); 
+		print 1; 
+		print 2; 
+		print 3; 
+		}", Tokens), 
+	parse(Tokens, Stmts), 
+	print_list(Stmts).
+
 :- end_tests(parse_tokens).
 
 

@@ -48,4 +48,21 @@ test(interpret_unary_minus) :-
 	parse(Tokens, Stmts), 
 	interpret(Stmts).
 
+test(interpret_binary_minus) :-
+	scan("print 100-1;", Tokens), 
+	parse(Tokens, Stmts), 
+	interpret(Stmts).
+
+test(interpret_block_stmt) :-
+	scan("{ 
+		print 1;
+		print 2;
+		print 3;
+		print 4;
+		print 5;
+		 }", Tokens), 
+	parse(Tokens, Stmts), 
+	once(
+		interpret(Stmts)).
+
 :- end_tests(interpret_stmts).

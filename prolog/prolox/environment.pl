@@ -1,8 +1,8 @@
-:- module(environment,[create_new_env/1, define_var/4, get_var/3]).
+:- module(environment,[create_new_env/2, define_var/4, get_var/3]).
 
-create_new_env(env([], none)).
+create_new_env(Enclosing, env([], Enclosing)).
 
-create_enclosed_env(EnclosingEnv, env([], EnclosingEnv)).
+extract_enclosing(env(_, Enclosing), Enclosing).
 
 define_var(Key, Value, env(Store, EnclosingEnv), env([Key-Value| Store], EnclosingEnv)).
 
