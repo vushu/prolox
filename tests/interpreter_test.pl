@@ -6,8 +6,7 @@
 test(interpret_term) :-
 	scan("print 2 + 2;", Tokens), 
 	parse(Tokens, Stmts), 
-	once(
-		interpret(Stmts)).
+	interpret(Stmts).
 
 test(interpret_or) :-
 	scan("print false or 42;", Tokens), 

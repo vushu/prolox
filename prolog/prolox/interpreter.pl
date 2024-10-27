@@ -17,12 +17,13 @@ interpret([Stmt|Stmts]) :-
 		state(Env1, _)), 
 	evaluate_rest(Stmts, Env1, _).
 
-evaluate_rest([Stmt|Stmts], Env, C) :-
+evaluate_rest([Stmt|Stmts], Env, state(NewEnv, _)) :-
 	evaluate(Stmt, Env, 
 		state(Env1, _)), 
-	evaluate_rest(Stmts, Env1, _).
+	evaluate_rest(Stmts, Env1, 
+		state(NewEnv, _)).
 
-evaluate_rest([],_, _).
+evaluate_rest([],Env, state(Env, _)).
 
 evaluate(print(X), Env, state(Env1, _)) :-
 	evaluate(X, Env, 
@@ -130,10 +131,11 @@ evaluate(block([Stmt|Stmts]), Env, _) :-
 		state(Env1, _)), 
 	evaluate_block_rest(Stmts, Env1, _).
 
-evaluate_block_rest([Stmt|Stmts], Env, _) :-
+evaluate_block_rest([Stmt|Stmts], Env, state(NewEnv, _)) :-
 	evaluate(Stmt, Env, 
 		state(Env1, _)), 
-	evaluate_block_rest(Stmts, Env1, _).
+	evaluate_block_rest(Stmts, Env1, 
+		state(NewEnv, _)).
 
 evaluate_block_rest([], _, _).
 
