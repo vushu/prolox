@@ -131,7 +131,14 @@ test(parse_var_decl) :-
 					token(
 						identifier("b"), 1))))]).
 
+test(parse_var_assignment) :-
+	scan("a = 12;", Tokens), 
+	parse(Tokens, [expr_stmt(assigment(assign_name(primary(token(identifier("a"),1))),value(primary(number(12)))))]).
+
+
+
 :- end_tests(parse_tokens).
+
 
 
 

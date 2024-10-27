@@ -46,8 +46,7 @@ test(interpret_unary_bang) :-
 test(interpret_unary_minus) :-
 	scan("print ---100;", Tokens), 
 	parse(Tokens, Stmts), 
-	once(
-		interpret(Stmts)).
+	interpret(Stmts).
 
 test(interpret_binary_minus) :-
 	scan("print 100-1;", Tokens), 
@@ -70,5 +69,9 @@ test(interpret_var_decl) :-
 	parse(Tokens, Stmts), 
 	interpret(Stmts).
 
+test(interpret_assignment) :-
+	scan("var foo = 32; var bar = 10; foo = 42;", Tokens), 
+	parse(Tokens, Stmts), 
+	interpret(Stmts).
 
 :- end_tests(interpret_stmts).

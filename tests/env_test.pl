@@ -7,6 +7,15 @@ test(setting_variable_env_with_enclosing) :-
 	create_new_env(NewEnclosing, Env), 
 	get_var(jumanji, Env, "jumanji world").
 
+test(setting_variable_env) :-
+	create_new_env(none, Env), 
+	define_var(jumanji, "jumanji", Env, Env2), 
+	define_var(world, "world", Env2, Env3), 
+	get_var(jumanji, Env3, "jumanji"), 
+	get_var(world, Env3, "world"), 
+	assign_var(jumanji, "jumanjino", Env3, NewEnv), 
+	writeln(NewEnv).
+
 test(assign_env) :-
 	create_new_env(none, Env), 
 	define_var(jumanji, "jumanji world", Env, UpdatedEnv), 
