@@ -60,15 +60,6 @@ test(parse_var_decl_inside_block) :-
 				primary(
 					token(
 						identifier("b"), 1))))])].
-		% [block(
-		% 	[var_decl(
-		% 		name(
-		% 			token(
-		% 				identifier("a"), 1)), 
-		% 		intializer(
-		% 			primary(
-		% 				token(
-		% 					identifier("b"), 1))))])]).
 
 test(parse_comparison) :-
 	scan("42 >= 10;", Tokens), 
