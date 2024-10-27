@@ -12,5 +12,12 @@ test(assign_env) :-
 	define_var(jumanji, "jumanji world", Env, UpdatedEnv), 
 	assign_var(jumanji, "huhuhu", UpdatedEnv, NewerEnv), 
 	get_var(jumanji, NewerEnv, "huhuhu").
+
+test(assign_env_enclosing) :-
+	create_new_env(none, Enclosing), 
+	define_var(jumanji, "jumanji world", Enclosing, UpdatedEnclosing), 
+	create_new_env(UpdatedEnclosing, Env), 
+	assign_var(jumanji, "changed jumanji", Env, NewerEnv), 
+	get_var(jumanji, NewerEnv, "changed jumanji").
 	
  :- end_tests(env).
