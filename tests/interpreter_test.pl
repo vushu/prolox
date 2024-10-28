@@ -79,5 +79,25 @@ test(interpret_assignment_simple) :-
 	parse(Tokens, Stmts), 
 	interpret(Stmts).
 
+test(interpret_if) :-
+	scan("if (3 > 1) { print 42; }", Tokens), 
+	parse(Tokens, Stmts), 
+	writeln(Stmts), 
+	interpret(Stmts).
+
+test(interpret_if_with_else) :-
+	scan("if (3 < 1) { print 42; } else { print \"Damn\"; }", Tokens), 
+	parse(Tokens, Stmts), 
+	interpret(Stmts).
+
+test(interpret_while) :-
+	scan("while (false) { print 42; }", Tokens), 
+	parse(Tokens, Stmts), 
+	interpret(Stmts).
+
+test(interpret_variable) :-
+	scan("var a = 21; print a * 2;", Tokens), 
+	parse(Tokens, Stmts), 
+	interpret(Stmts).
 
 :- end_tests(interpret_stmts).

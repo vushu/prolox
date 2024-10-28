@@ -25,8 +25,8 @@ evaluate_rest([Stmt|Stmts], Env, state(NewEnv, _)) :-
 
 evaluate_rest([],Env, state(Env, _)).
 
-evaluate(print(X), Env, state(Env1, _)) :-
-	evaluate(X, Env, 
+evaluate(print(Stmt), Env, state(Env1, _)) :-
+	evaluate(Stmt, Env, 
 		state(Env1, R)), 
 	writeln(R), !.
 	% format("printing: ~w~n", R), !.
@@ -36,8 +36,6 @@ evaluate(primary(true), Env, state(Env,true)).
 evaluate(primary(false), Env, state(Env,false)).
 
 evaluate(primary(nil), Env, state(Env,nil)).
-
-evaluate(primary(token(identifier(Name), _)), Env, state(Env,Name)).
 
 evaluate(primary(X), Env, Y) :-
 	evaluate(X, Env, Y).
@@ -122,20 +120,49 @@ evaluate(unary(op(token(Op, _)), right(E)), Env, state(Env1, Res)) :-
 evaluate(expr_stmt(Expr), Env, R) :-
 	evaluate(Expr, Env, R).
 
+evaluate(variable(token(identifier(VarName), _)), Env, state(Env, R)) :-
+	get_var(VarName, Env, R).
+
 evaluate(var_decl(name(token(identifier(Name), _)), initializer(Stmt)), Env, state(Env2, none)) :-
 	evaluate(Stmt, Env, 
 		state(Env1, V)), 
-	define_var(Name, V, Env1, Env2), !.
+	define_var(Name, V, Env1, Env2), 
+	writeln(Env2), !.
 
-evaluate(assigment(assign_name(NameExpr), value(ValueExpr)), Env, state(EnvAssigned, none)) :-
-	evaluate(NameExpr, Env, 
-		state(Env1, Key)), 
-	evaluate(ValueExpr, Env1, 
-		state(Env2, Value)), 
-	assign_var(Key, Value, Env2, EnvAssigned).
+evaluate(assigment(assign_name(variable(token(identifier(VarName), _))), value(ValueExpr)), Env, state(EnvAssigned, none)) :-
+	evaluate(ValueExpr, Env, 
+		state(Env1, Value)), 
+	assign_var(VarName, Value, Env1, EnvAssigned).
 
-evaluate(block([Stmt|Stmts]), Env, _) :-
-	writeln("Block-stmt"), !, 
+evaluate(if(condition(Expr), then(Stmt), else(none)), Env, state(Env2, none)) :-
+	evaluate(Expr, Env, 
+		state(Env1, true)), 
+	evaluate(Stmt, Env1, 
+		state(Env2, _)), !.
+
+evaluate(if(condition(Expr), then(_), else(ElseStmt)), Env, state(Env2, none)) :-
+	evaluate(Expr, Env, 
+		state(Env1, false)), 
+	evaluate(ElseStmt, Env1, 
+		state(Env2, _)), !.
+
+while_loop(Expr, Stmt, Env, state(Env3, none)) :-
+	evaluate(Expr, Env, 
+		state(Env1, Res)), 
+	(Res = true, 
+		evaluate(Stmt, Env1, 
+			state(Env2, _)), 
+		while_loop(Expr, Stmt, Env2, 
+			state(Env3, _));
+			true).
+
+evaluate(while(condition(Expr), body(Stmt)), Env, state(Env2, none)) :-
+	while_loop(Expr, Stmt, Env, 
+		state(Env2, _)), !.
+
+	evaluate(
+		block([Stmt|Stmts]), Env, _)
+	  :- writeln("Block-stmt"), !, 
 	evaluate(Stmt, Env, 
 		state(Env1, _)), 
 	evaluate_block_rest(Stmts, Env1, _).
@@ -149,9 +176,11 @@ evaluate_block_rest([Stmt|Stmts], Env, state(NewEnv, _)) :-
 evaluate_block_rest([], _, _).
 
 evaluate(Expr, E, _) :-
+	writeln("-----------------------------------------------------------"), 
 	writeln("Unknown stmt"), 
 	writeln(Expr), 
-	writeln(E), halt.
+	writeln(E), 
+	writeln("-----------------------------------------------------------"), halt.
 
 % block_stmt(block(Stmts))-->
 

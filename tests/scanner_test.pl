@@ -2,8 +2,9 @@
 :- use_module(prolog/prolox/scanner).
 
 print_list([]).
+
 print_list([H|T]) :-
-	format("Tokens ~w~n", H),
+	format("Tokens ~w~n", H), 
 	print_list(T).
 
 test(scanning_tokens) :-
@@ -25,20 +26,28 @@ test(scan_string) :-
 
 test(scan_string) :-
 	scan("2> 2+ 2", Tokens), 
-	writeln("----------------"),
-	print_list(Tokens),
+	writeln("----------------"), 
+	print_list(Tokens), 
 	writeln("----------------").
 
 test(scan_block) :-
-	scan("{ 	2 >   2 + 2
-		 // Hello!
-		 // how are you doing!.
+	scan("{2 > 2 + 2//Hello!//howareyoudoing!.
 		 }", Tokens), 
 	writeln("----------------"),
 	print_list(Tokens),
 	writeln("----------------").
 
+test(scan_while) :-
+	scan("while(true) { print 42;}", Tokens), 
+	writeln("----------------"), 
+	print_list(Tokens), 
+	writeln("----------------").
 
+test(scan_var) :-
+	scan("print a * b;}", Tokens), 
+	writeln("----------------"), 
+	print_list(Tokens), 
+	writeln("----------------").
 
 
 :- end_tests(scan_tokens).

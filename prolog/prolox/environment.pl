@@ -6,9 +6,6 @@ extract_enclosing(env(_, Enclosing), Enclosing).
 
 define_var(Key, Value, env(Store, EnclosingEnv), env([Key-Value| Store], EnclosingEnv)).
 
-get_var(Key, env(Store, none), Value) :-
-	member(Key - Value, Store), !.
-
 get_var(Key, env(Store, _), Value) :-
 	member(Key - Value, Store), !.
 

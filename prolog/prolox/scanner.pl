@@ -85,13 +85,6 @@ is_alpha_numberic(A)  --> is_alphabet(A); is_digit(A).
 is_digit(D) --> [D], { char_type(D, digit) }.
 is_alphabet(Ch) --> [Ch], { is_alpha(Ch) }.
 
-
-% DCG rule to match and skip whitespace characters
-whitespace --> ['\t'], whitespace.
-whitespace --> ['\r'], whitespace.
-whitespace --> [' '], whitespace.
-whitespace --> [].  % Base case: no more whitespace
-
 newline(Line, NextLine) --> ['\n'], { NextLine is Line + 1  }, newline(NextLine, _).
 newline(Line, Line) --> [].  % Base case
 

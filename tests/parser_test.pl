@@ -57,7 +57,7 @@ test(parse_var_decl_inside_block) :-
 				token(
 					identifier("a"), 1)), 
 			initializer(
-				primary(
+				variable(
 					token(
 						identifier("b"), 1))))])].
 
@@ -127,13 +127,36 @@ test(parse_var_decl) :-
 				token(
 					identifier("a"), 1)), 
 			initializer(
-				primary(
+				variable(
 					token(
 						identifier("b"), 1))))]).
 
 test(parse_var_assignment) :-
 	scan("a = 12;", Tokens), 
-	parse(Tokens, [expr_stmt(assigment(assign_name(primary(token(identifier("a"),1))),value(primary(number(12)))))]).
+	parse(Tokens, 
+		[expr_stmt(
+			assigment(
+				assign_name(
+					variable(
+						token(
+							identifier("a"), 1))), 
+				value(
+					primary(
+						number(12)))))]).
+
+test(parse_while) :-
+	scan("while(true) {print 23;}", Tokens), 
+	parse(Tokens, 
+		[while(
+			condition(
+				primary(
+					group(
+						primary(true)))), 
+			body(
+				block(
+					[print(
+						primary(
+							number(23)))])))]).
 
 
 

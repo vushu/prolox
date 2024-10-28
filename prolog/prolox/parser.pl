@@ -77,14 +77,14 @@ if_stmt(if(condition(Expr), then(Stmt), else(ElseBlock)))-->
 	has_else_block(ElseBlock).
 
 has_else_block(Res)-->
-	(
-		[token(else, _), 
-		token(left_brace, _)], 
-		get_expr_stmts(Stmts), 
-	
-		{Res = some(Stmts)}, 
-		[token(right_brace, _)]);
+	[token(else, _)], 
+	block_stmt(Res);
 	{Res = none}.
+
+while_stmt(while(condition(Cond), body(Stmt)))-->
+	[token(while, _)], 
+	expression(Cond), 
+	block_stmt(Stmt).
 
 get_expr_stmts([Stmt|Stmts])-->
 	expression_stmt(Stmt), 
@@ -101,6 +101,9 @@ statement(Stmt)-->
 
 statement(Stmt)-->
 	if_stmt(Stmt).
+
+statement(Stmt)-->
+	while_stmt(Stmt).
 
 statement(Stmt)-->
 	expression_stmt(Stmt).
@@ -222,7 +225,7 @@ primary_expr(primary(false))-->
 primary_expr(primary(nil))-->
 	[token(nil, _)].
 
-primary_expr(primary(T))-->
+primary_expr(variable(T))-->
 	[T], 
 	
 	{T = token(
