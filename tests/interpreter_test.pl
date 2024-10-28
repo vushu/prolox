@@ -74,4 +74,10 @@ test(interpret_assignment) :-
 	parse(Tokens, Stmts), 
 	interpret(Stmts).
 
+test(interpret_assignment_simple) :-
+	scan("var foo = 0; foo = 42;", Tokens), 
+	parse(Tokens, Stmts), 
+	interpret(Stmts).
+
+
 :- end_tests(interpret_stmts).

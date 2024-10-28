@@ -21,7 +21,7 @@ evaluate_rest([Stmt|Stmts], Env, state(NewEnv, _)) :-
 	evaluate(Stmt, Env, 
 		state(Env1, _)), 
 	evaluate_rest(Stmts, Env1, 
-		state(NewEnv, _)).
+		state(NewEnv, _)), !.
 
 evaluate_rest([],Env, state(Env, _)).
 
@@ -125,17 +125,14 @@ evaluate(expr_stmt(Expr), Env, R) :-
 evaluate(var_decl(name(token(identifier(Name), _)), initializer(Stmt)), Env, state(Env2, none)) :-
 	evaluate(Stmt, Env, 
 		state(Env1, V)), 
-	define_var(Name, V, Env1, Env2), 
-	writeln(Env2), !.
+	define_var(Name, V, Env1, Env2), !.
 
-evaluate(assigment(assign_name(NameExpr), value(ValueExpr)), Env, state(EnvAssigned, _)) :-
+evaluate(assigment(assign_name(NameExpr), value(ValueExpr)), Env, state(EnvAssigned, none)) :-
 	evaluate(NameExpr, Env, 
 		state(Env1, Key)), 
 	evaluate(ValueExpr, Env1, 
-		state(Env2, Value)),!, 
-	assign_var(Key, Value, Env2, EnvAssigned), !.
-	% writeln("hehehee"), 
-	% writeln(EnvAssigned).
+		state(Env2, Value)), 
+	assign_var(Key, Value, Env2, EnvAssigned).
 
 evaluate(block([Stmt|Stmts]), Env, _) :-
 	writeln("Block-stmt"), !, 
@@ -151,8 +148,10 @@ evaluate_block_rest([Stmt|Stmts], Env, state(NewEnv, _)) :-
 
 evaluate_block_rest([], _, _).
 
-evaluate(_, _, _) :-
-	writeln("Unknown stmt"), halt.
+evaluate(Expr, E, _) :-
+	writeln("Unknown stmt"), 
+	writeln(Expr), 
+	writeln(E), halt.
 
 % block_stmt(block(Stmts))-->
 
