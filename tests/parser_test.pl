@@ -146,17 +146,7 @@ test(parse_var_assignment) :-
 
 test(parse_while) :-
 	scan("while(true) {print 23;}", Tokens), 
-	parse(Tokens, 
-		[while(
-			condition(
-				primary(
-					group(
-						primary(true)))), 
-			body(
-				block(
-					[print(
-						primary(
-							number(23)))])))]).
+parse(Tokens, [while(condition(primary(true)),body(block([print(primary(number(23)))])))]).
 
 
 

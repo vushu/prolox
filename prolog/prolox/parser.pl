@@ -83,7 +83,9 @@ has_else_block(Res)-->
 
 while_stmt(while(condition(Cond), body(Stmt)))-->
 	[token(while, _)], 
+	[token(left_paren, _)], 
 	expression(Cond), 
+	[token(right_paren, _)], 
 	block_stmt(Stmt).
 
 get_expr_stmts([Stmt|Stmts])-->

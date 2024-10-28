@@ -14,7 +14,7 @@ test(setting_variable_env) :-
 	get_var(jumanji, Env3, "jumanji"), 
 	get_var(world, Env3, "world"), 
 	assign_var(jumanji, "jumanjino", Env3, NewEnv), 
-	NewEnv = env([world - "world", jumanji - "jumanjino"]).
+	NewEnv = env([world - "world", jumanji - "jumanjino"], none).
 
 test(assign_env) :-
 	create_new_env(none, Env), 

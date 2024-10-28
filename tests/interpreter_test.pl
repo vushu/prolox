@@ -100,4 +100,19 @@ test(interpret_variable) :-
 	parse(Tokens, Stmts), 
 	interpret(Stmts).
 
+test(interpret_fibonacci) :-
+	scan("var a = 0;
+		var b = 1;
+		var temp = 0;
+		while (a < 10000) { 
+			print a; 
+			temp = a; 
+			a = b; 
+			b = temp + b;
+		}", Tokens), 
+	parse(Tokens, Stmts), % writeln(Stmts),
+	
+	interpret(Stmts).
+
+
 :- end_tests(interpret_stmts).

@@ -121,18 +121,18 @@ evaluate(expr_stmt(Expr), Env, R) :-
 	evaluate(Expr, Env, R).
 
 evaluate(variable(token(identifier(VarName), _)), Env, state(Env, R)) :-
-	get_var(VarName, Env, R).
+	get_var(VarName, Env, R), !. 
 
 evaluate(var_decl(name(token(identifier(Name), _)), initializer(Stmt)), Env, state(Env2, none)) :-
 	evaluate(Stmt, Env, 
 		state(Env1, V)), 
-	define_var(Name, V, Env1, Env2), 
-	writeln(Env2), !.
+	define_var(Name, V, Env1, Env2), % writeln(Env2),
+	!.
 
 evaluate(assigment(assign_name(variable(token(identifier(VarName), _))), value(ValueExpr)), Env, state(EnvAssigned, none)) :-
 	evaluate(ValueExpr, Env, 
 		state(Env1, Value)), 
-	assign_var(VarName, Value, Env1, EnvAssigned).
+	assign_var(VarName, Value, Env1, EnvAssigned), !.
 
 evaluate(if(condition(Expr), then(Stmt), else(none)), Env, state(Env2, none)) :-
 	evaluate(Expr, Env, 
@@ -146,6 +146,10 @@ evaluate(if(condition(Expr), then(_), else(ElseStmt)), Env, state(Env2, none)) :
 	evaluate(ElseStmt, Env1, 
 		state(Env2, _)), !.
 
+evaluate(while(condition(Expr), body(Stmt)), Env, state(Env2, none)) :-
+	while_loop(Expr, Stmt, Env, 
+		state(Env2, _)), !.
+
 while_loop(Expr, Stmt, Env, state(Env3, none)) :-
 	evaluate(Expr, Env, 
 		state(Env1, Res)), 
@@ -156,24 +160,23 @@ while_loop(Expr, Stmt, Env, state(Env3, none)) :-
 			state(Env3, _));
 			true).
 
-evaluate(while(condition(Expr), body(Stmt)), Env, state(Env2, none)) :-
-	while_loop(Expr, Stmt, Env, 
-		state(Env2, _)), !.
-
-	evaluate(
-		block([Stmt|Stmts]), Env, _)
-	  :- writeln("Block-stmt"), !, 
+evaluate(block([Stmt|Stmts]), Env, state(Env2, _)) :-
+	% writeln("Block-stmt"), 
+% writeln(Env), 
+% writeln(Stmt), !, % create_new_env(Env, Enclosed), 
+!, 
 	evaluate(Stmt, Env, 
 		state(Env1, _)), 
-	evaluate_block_rest(Stmts, Env1, _).
+	evaluate_block_rest(Stmts, Env1, 
+		state(Env2, _)).
+
+evaluate_block_rest([], R, state(R, _)).
 
 evaluate_block_rest([Stmt|Stmts], Env, state(NewEnv, _)) :-
 	evaluate(Stmt, Env, 
 		state(Env1, _)), 
 	evaluate_block_rest(Stmts, Env1, 
 		state(NewEnv, _)).
-
-evaluate_block_rest([], _, _).
 
 evaluate(Expr, E, _) :-
 	writeln("-----------------------------------------------------------"), 
