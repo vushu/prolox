@@ -88,6 +88,36 @@ while_stmt(while(condition(Cond), body(Stmt)))-->
 	[token(right_paren, _)], 
 	block_stmt(Stmt).
 
+for_cond(Cond)-->
+	[token(semicolon, _)], 
+	{Cond = none};
+	expression_stmt(Cond);
+	{Cond = none}.
+
+for_inc(Inc)-->
+	[token(right_parn,_)], {Inc = none};
+	expression(Inc);
+	{Inc = none}.
+
+for_initializer(Init)-->
+	[token(semicolon, _)], 
+	{Init = none};
+	var_declaration_stmt(Init);
+	{Init = none}.
+
+for_body(Body)-->
+	block_stmt(Body);
+	{Body = none}.
+
+for_stmt(for(initializer(Init), condition(Cond), incrementer(Inc), body(Body)))-->
+	[token(for, _)], 
+	[token(left_paren, _)], 
+	for_initializer(Init), 
+	for_cond(Cond), 
+	for_inc(Inc), 
+	[token(right_paren, _)], 
+	for_body(Body).
+
 get_expr_stmts([Stmt|Stmts])-->
 	expression_stmt(Stmt), 
 	get_expr_stmts(Stmts).
@@ -105,7 +135,8 @@ statement(Stmt)-->
 	if_stmt(Stmt).
 
 statement(Stmt)-->
-	while_stmt(Stmt).
+	while_stmt(Stmt);
+	for_stmt(Stmt).
 
 statement(Stmt)-->
 	expression_stmt(Stmt).

@@ -178,6 +178,7 @@ evaluate_block_rest([Stmt|Stmts], Env, state(NewEnv, _)) :-
 	evaluate_block_rest(Stmts, Env1, 
 		state(NewEnv, _)).
 
+
 evaluate(Expr, E, _) :-
 	writeln("-----------------------------------------------------------"), 
 	writeln("Unknown stmt"), 
@@ -198,3 +199,4 @@ is_truthy(true, true).
 is_truthy(false, false).
 is_truthy(nil, false).
 is_truthy(_, true).
+
