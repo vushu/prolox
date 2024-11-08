@@ -59,8 +59,6 @@ block_stmt_rest([Stmt|Stmts])-->
 block_stmt_rest([])-->
 	[].
 
-%var_declaration
-
 var_declaration_stmt(Stmt)-->
 	statement(Stmt).
 
@@ -112,11 +110,7 @@ for_inc(Inc)-->
 for_initializer(Init)-->
 	[token(semicolon, _)], 
 	{Init = none};
-	
-	{writeln("sdfsadfdsaf")}, 
-	var_declaration_stmt(Init), 
-	
-	{writeln(Init)};
+	var_declaration_stmt(Init);
 	{Init = none}.
 
 for_body(Body)-->

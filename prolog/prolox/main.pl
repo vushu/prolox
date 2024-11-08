@@ -3,6 +3,6 @@
 :- use_module(interpreter).
 
 main :-
-	scan("for(var i = 0; i < 30;) {print \"Hello World!\";}", Tokens), 
+	scan("for(var i = 0; i < 30;) {print \"HelloWorld!\";}", Tokens), 
 	parse(Tokens, Stmts), 
 	interpret(Stmts).

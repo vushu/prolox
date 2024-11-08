@@ -158,15 +158,87 @@ test(parse_while) :-
 
 test(parse_for) :-
 	scan("for(var i = 0; i < 30; i = i + 1) {print 23;}", Tokens), 
-	parse(Tokens, Stmts).
-	% writeln("--------------------"), 
-	% writeln(Stmts).
+	parse(Tokens, 
+		[block(
+			[var_decl(
+				name(
+					token(
+						identifier("i"), 1)), 
+				initializer(
+					primary(
+						number(0)))), 
+			while(
+				condition(
+					expr_stmt(
+						comparison(
+							left(
+								variable(
+									token(
+										identifier("i"), 1))), 
+							right(
+								primary(
+									number(30))), 
+							op(
+								token(less, 1))))), 
+				body(
+					block(
+						[block(
+							[print(
+								primary(
+									number(23)))]), 
+						assigment(
+							assign_name(
+								variable(
+									token(
+										identifier("i"), 1))), 
+							value(
+								term(
+									left(
+										variable(
+											token(
+												identifier("i"), 1))), 
+									right(
+										primary(
+											number(1))), 
+									op(plus))))])))])]).
 
 test(parse_for_no_initializer) :-
 	scan("for(; i < 30; i = i + 1) { print 23; }", Tokens), 
-	parse(Tokens, Stmts), 
-	writeln("--------------------"), 
-	writeln(Stmts).
+	parse(Tokens, 
+		[while(
+			condition(
+				expr_stmt(
+					comparison(
+						left(
+							variable(
+								token(
+									identifier("i"), 1))), 
+						right(
+							primary(
+								number(30))), 
+						op(
+							token(less, 1))))), 
+			body(
+				block(
+					[block(
+						[print(
+							primary(
+								number(23)))]), 
+					assigment(
+						assign_name(
+							variable(
+								token(
+									identifier("i"), 1))), 
+						value(
+							term(
+								left(
+									variable(
+										token(
+											identifier("i"), 1))), 
+								right(
+									primary(
+										number(1))), 
+								op(plus))))])))]).
 
 test(parse_for_no_initializer_and_cond) :-
 	scan("for(;; i = i + 1) {print 23;}", Tokens), 
