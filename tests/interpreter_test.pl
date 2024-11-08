@@ -114,5 +114,12 @@ test(interpret_fibonacci) :-
 	
 	interpret(Stmts).
 
+test(interpret_for) :-
+	scan("for(var i = 0; i < 30; i = i + 1) {print 23;}", Tokens), 
+	parse(Tokens, Stmts), 
+	writeln(------------------),
+	writeln(Stmts),
+	writeln(------------------),
+	interpret(Stmts).
 
 :- end_tests(interpret_stmts).

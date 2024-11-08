@@ -161,10 +161,10 @@ while_loop(Expr, Stmt, Env, state(Env3, none)) :-
 			true).
 
 evaluate(block([Stmt|Stmts]), Env, state(Env2, _)) :-
-	% writeln("Block-stmt"), 
-% writeln(Env), 
+	% writeln("Block-stmt"), % writeln(Env), 
 % writeln(Stmt), !, % create_new_env(Env, Enclosed), 
-!, 
+% !, 
+
 	evaluate(Stmt, Env, 
 		state(Env1, _)), 
 	evaluate_block_rest(Stmts, Env1, 
@@ -177,7 +177,6 @@ evaluate_block_rest([Stmt|Stmts], Env, state(NewEnv, _)) :-
 		state(Env1, _)), 
 	evaluate_block_rest(Stmts, Env1, 
 		state(NewEnv, _)).
-
 
 evaluate(Expr, E, _) :-
 	writeln("-----------------------------------------------------------"), 

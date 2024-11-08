@@ -13,6 +13,14 @@ parse_expr([])-->
 	[].
 	% {throw("Failed to parse")}, [].
 
+convert_for_stmt_to_while_stmt(none, Cond, none, ForBody, while(condition(Cond), body(ForBody))).
+
+convert_for_stmt_to_while_stmt(none, Cond, Inc, ForBody, while(condition(Cond), body(block([ForBody, Inc])))).
+
+convert_for_stmt_to_while_stmt(Init, Cond, none, ForBody, block([Init, while(condition(Cond), body(ForBody))])).
+
+convert_for_stmt_to_while_stmt(Init, Cond, Inc, ForBody, block([Init, while(condition(Cond), body(block([ForBody, Inc])))])).
+
 expression_stmt(expr_stmt(Expr))-->
 	expression(Expr), 
 	[token(semicolon, _)].
@@ -90,33 +98,41 @@ while_stmt(while(condition(Cond), body(Stmt)))-->
 
 for_cond(Cond)-->
 	[token(semicolon, _)], 
-	{Cond = none};
+	
+	{Cond = primary(true)};
 	expression_stmt(Cond);
-	{Cond = none}.
+	{Cond = failed}.
 
 for_inc(Inc)-->
-	[token(right_parn,_)], {Inc = none};
+	[token(right_parn, _)], 
+	{Inc = none};
 	expression(Inc);
 	{Inc = none}.
 
 for_initializer(Init)-->
 	[token(semicolon, _)], 
 	{Init = none};
-	var_declaration_stmt(Init);
+	
+	{writeln("sdfsadfdsaf")}, 
+	var_declaration_stmt(Init), 
+	
+	{writeln(Init)};
 	{Init = none}.
 
 for_body(Body)-->
 	block_stmt(Body);
 	{Body = none}.
 
-for_stmt(for(initializer(Init), condition(Cond), incrementer(Inc), body(Body)))-->
+for_stmt(While)-->
 	[token(for, _)], 
 	[token(left_paren, _)], 
 	for_initializer(Init), 
 	for_cond(Cond), 
 	for_inc(Inc), 
 	[token(right_paren, _)], 
-	for_body(Body).
+	for_body(ForBody), 
+	
+	{convert_for_stmt_to_while_stmt(Init, Cond, Inc, ForBody, While)}.
 
 get_expr_stmts([Stmt|Stmts])-->
 	expression_stmt(Stmt), 
