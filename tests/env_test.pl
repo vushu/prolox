@@ -13,8 +13,8 @@ test(setting_variable_env) :-
 	define_var(world, "world", Env2, Env3), 
 	get_var(jumanji, Env3, "jumanji"), 
 	get_var(world, Env3, "world"), 
-	assign_var(jumanji, "jumanjino", Env3, NewEnv), 
-	NewEnv = env([world - "world", jumanji - "jumanjino"], none).
+	assign_var(jumanji, "jumanjino", Env3, EnvLast), 
+	get_var(jumanji, EnvLast, "jumanjino").
 
 test(assign_env) :-
 	create_new_env(none, Env), 
@@ -35,6 +35,13 @@ test(get_var_with_enclosing) :-
 	create_new_env(UpdatedEnclosing, Env), 
 	define_var(jumanji, "hej med dig", Env, UpdatedEnv), 
 	get_var(jumanji, UpdatedEnv, "hej med dig").
-	
+
+test(assign_env_more_enclosing) :-
+	create_new_env(none, Initial), 
+	define_var(a, "A monkey", Initial, InitialUpdated), 
+	create_new_env(InitialUpdated, Second), 
+	create_new_env(Second, Third), 
+	assign_var(a, "A lonkey", Third, Last), 
+	get_var(a, Last, "A lonkey").
 
  :- end_tests(env).

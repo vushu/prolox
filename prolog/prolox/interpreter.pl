@@ -29,7 +29,6 @@ evaluate(print(Stmt), Env, state(Env1, _)) :-
 	evaluate(Stmt, Env, 
 		state(Env1, R)), 
 	writeln(R), !.
-	% format("printing: ~w~n", R), !.
 
 evaluate(primary(true), Env, state(Env,true)).
 
@@ -160,16 +159,17 @@ while_loop(Expr, Stmt, Env, state(Env3, none)) :-
 			state(Env3, _));
 			true).
 
-evaluate(block([Stmt|Stmts]), Env, state(Env2, _)) :-
-	% writeln("Block-stmt"), % writeln(Env), 
-% writeln(Stmt), !, % create_new_env(Env, Enclosed), 
-!, 
-	evaluate(Stmt, Env, 
+evaluate(block([Stmt|Stmts]), Env, state(NewEnv, none)) :-
+	!, 
+	create_new_env(Env, Enclosed), 
+	evaluate(Stmt, Enclosed, 
 		state(Env1, _)), 
 	evaluate_block_rest(Stmts, Env1, 
-		state(Env2, _)).
-
-evaluate_block_rest([], R, state(R, _)).
+		state(Env2, _)), 
+	 remove_inner_env(Env2, NewEnv).% going out of scope, hence we remove the inner scope.
+		
+	evaluate_block_rest([], R, 
+		state(R, _)).
 
 evaluate_block_rest([Stmt|Stmts], Env, state(NewEnv, _)) :-
 	evaluate(Stmt, Env, 

@@ -12,20 +12,23 @@ get_var(Key, env(Store, _), Value) :-
 get_var(Key, env(_, EnclosingEnv), Value) :-
 	get_var(Key, EnclosingEnv, Value).
 
-assign_var(_, _, env([], none), env([], none)) :-
-	writeln("Failed to assign"), halt.
-
-assign_var(Key, Value, env([Key-_|T], none), env([Key-Value|T], none)) :-
+assign_var(Key, Value, env([Key-_|T], R), env([Key-Value|T], R)) :-
 	!.
 
-assign_var(Key, Value, env(_, Enclosing), R) :-
-	assign_var(Key, Value, Enclosing, R), !.
-
-assign_var(Key, Value, env([Key2-Value2|T], none), env([Key2-Value2|NewTail], none)) :-
-	Key \= Key2, 
+assign_var(Key, Value, env([Key2-Value2|T], Enc), env([Key2-Value2|NewTail], Enc)) :-
+	Key \= Key2,
 	assign_var(Key, Value, 
-		env(T, none), 
-		env(NewTail, none)).
+		env(T, Enc), 
+		env(NewTail, Enc)).
+
+assign_var(Key, Value, env(S, Enc), env(S, R)) :-
+	!, 
+	assign_var(Key, Value, Enc, R).
+
+assign_var(_, _, env([], _), none) :-
+	writeln("Failed to assign"), halt.
 
 %When going out of scope
-remove_inner_env(env(_, Enclosed), env(Enclosed, none)).
+remove_inner_env(env([], none), env([],none)).
+
+remove_inner_env(env(_, Enclosed), Enclosed).
