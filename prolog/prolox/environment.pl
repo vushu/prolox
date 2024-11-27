@@ -16,7 +16,7 @@ assign_var(Key, Value, env([Key-_|T], R), env([Key-Value|T], R)) :-
 	!.
 
 assign_var(Key, Value, env([Key2-Value2|T], Enc), env([Key2-Value2|NewTail], Enc)) :-
-	Key \= Key2,
+	Key \= Key2,!,
 	assign_var(Key, Value, 
 		env(T, Enc), 
 		env(NewTail, Enc)).
