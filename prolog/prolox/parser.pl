@@ -102,7 +102,7 @@ for_cond(Cond)-->
 	{Cond = failed}.
 
 for_inc(Inc)-->
-	[token(right_parn, _)], 
+	[token(right_paren, _)], 
 	{Inc = none};
 	expression(Inc);
 	{Inc = none}.
@@ -189,7 +189,7 @@ equality_op(T)-->
 assignment_expr(E)-->
 	or_expr(E).
 
-assignment_expr(assigment(assign_name(E), value(E2)))-->
+assignment_expr(assignment(assign_name(E), value(E2)))-->
 	or_expr(E), 
 	[token(equal, _)], 
 	assignment_expr(E2).
