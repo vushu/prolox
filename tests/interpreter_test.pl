@@ -98,7 +98,7 @@ test(interpret_while) :-
 test(interpret_variable) :-
 	scan("var a = 21; print a * 2;", Tokens), 
 	parse(Tokens, Stmts), 
-	once(interpret(Stmts)).
+	interpret(Stmts).
 
 test(interpret_fibonacci) :-
 	scan("var a = 0;
@@ -112,7 +112,7 @@ test(interpret_fibonacci) :-
 		}", Tokens), 
 	parse(Tokens, Stmts), % writeln(Stmts),
 	
-	once(interpret(Stmts)).
+	interpret(Stmts).
 
 test(interpret_for) :-
 	scan("for(var i = 0; i < 2; i = i + 1) {print i;}", Tokens), 

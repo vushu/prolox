@@ -4,7 +4,7 @@
 :- use_module(prolog/prolox/interpreter).
 
 test(interpret_for) :-
-	scan("for(var i = 0; i < 0; i = i + 1) { 2 + 2;}", Tokens),
+	scan("for(var i = 0; i < 3; i = i + 1) { print i;}", Tokens),
 	parse(Tokens, Stmts),
 	interpret(Stmts).
 

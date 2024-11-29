@@ -11,7 +11,6 @@ parse_expr([Expr|Rest])-->
 
 parse_expr([])-->
 	[].
-	% {throw("Failed to parse")}, [].
 
 convert_for_stmt_to_while_stmt(none, Cond, none, ForBody, while(condition(Cond), body(ForBody))).
 

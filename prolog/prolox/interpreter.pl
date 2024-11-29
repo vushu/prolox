@@ -7,7 +7,7 @@
 
 interpret([Stmt]) :-
 	create_new_env(none, Env), !, 
-	evaluate(Stmt, Env, _).
+	evaluate(Stmt, Env, _),!.
 
 %Multiple statements.
 
