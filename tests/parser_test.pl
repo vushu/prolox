@@ -135,7 +135,7 @@ test(parse_var_assignment) :-
 	scan("a = 12;", Tokens), 
 	parse(Tokens, 
 		[expr_stmt(
-			assigment(
+			assignment(
 				assign_name(
 					variable(
 						token(
@@ -186,7 +186,7 @@ test(parse_for) :-
 							[print(
 								primary(
 									number(23)))]), 
-						assigment(
+						assignment(
 							assign_name(
 								variable(
 									token(
@@ -224,7 +224,7 @@ test(parse_for_no_initializer) :-
 						[print(
 							primary(
 								number(23)))]), 
-					assigment(
+					assignment(
 						assign_name(
 							variable(
 								token(
@@ -252,7 +252,7 @@ test(parse_for_no_initializer_and_cond) :-
 					[print(
 						primary(
 							number(23)))]), 
-				assigment(
+				assignment(
 					assign_name(
 						variable(
 							token(
