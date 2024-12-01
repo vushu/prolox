@@ -139,6 +139,19 @@ test(parse_function) :-
 				parameters([identifier("name"), identifier("age")]),
 				body(block([print(primary(number(1)))])))]).
 
+test(parse_call) :-
+	scan("hej(mama, papa);", Tokens),
+	parse(Tokens,
+		[
+			expr_stmt(call(callee(variable(token(identifier("hej"),
+								1))),
+					paren(token(right_paren, 1)),
+					arguments([
+							variable(token(identifier("mama"),
+									1)),
+							[variable(token(identifier("papa"), 1))]])))]).
+
+
 
 
 :- end_tests(parse_tokens).

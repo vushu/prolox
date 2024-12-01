@@ -279,11 +279,34 @@ factor_expr(factor(left(E), right(E2), op(Op)))-->
 	unary_expr(E2).
 
 unary_expr(E)-->
-	primary_expr(E).
+	call_expr(E).
 
 unary_expr(unary(op(Op), right(E)))-->
 	unary_op(Op),
 	unary_expr(E). 
+
+call_expr(E)-->
+	primary_expr(E).
+
+call_expr(call(callee(Callee), paren(RParen), arguments(Args)))-->
+	primary_expr(Callee),
+	[token(left_paren, _)],
+	argument_list(Args),
+	[RParen],
+	{
+		RParen = token(right_paren, _)
+		}.
+
+argument_list([Arg, Rest])-->
+	expression(Arg),
+	[token(comma, _)],
+	argument_list(Rest).
+
+argument_list([Arg])-->
+	expression(Arg).
+
+argument_list([])-->
+	[].
 
 parameter_list([identifier(Param)|Rest])-->
 	[token(identifier(Param), _)],

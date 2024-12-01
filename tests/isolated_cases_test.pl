@@ -4,8 +4,7 @@
 :- use_module(prolog/prolox/interpreter).
 
 test(parse_function) :-
-	scan("fun hej(name, age){ print 1;}", Tokens),
-	writeln(Tokens),
+	scan("hej(mama, papa);", Tokens),
 	parse(Tokens, Stmts),
 	writeln(Stmts).
 
