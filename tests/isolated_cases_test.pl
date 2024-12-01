@@ -3,10 +3,11 @@
 :- use_module(prolog/prolox/scanner).
 :- use_module(prolog/prolox/interpreter).
 
-test(interpret_for) :-
-	scan("for(var i = 0; i < 3; i = i + 1) { print i;}", Tokens),
+test(parse_function) :-
+	scan("fun hej(name, age){ print 1;}", Tokens),
+	writeln(Tokens),
 	parse(Tokens, Stmts),
-	interpret(Stmts).
+	writeln(Stmts).
 
 
 :- end_tests(isolated_cases).
