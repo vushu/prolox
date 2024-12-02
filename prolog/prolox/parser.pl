@@ -13,7 +13,7 @@ parse_expr([])-->
 	% {throw("Failed to parse")}, [].
 
 declaration_stmt(Stmt)-->
-	fun_decl_stmt(Stmt).
+	fun_declaration_stmt(Stmt).
 
 declaration_stmt(Stmt)-->
 	var_declaration_stmt(Stmt).
@@ -319,7 +319,7 @@ parameter_list([identifier(Param)])-->
 parameter_list([])-->
 	[].
 
-fun_decl_stmt(function(identifier(Name), parameters(Params), body(B)))-->
+fun_declaration_stmt(function(identifier(Name), parameters(Params), body(B)))-->
 	[token(fun, _)],
 	[token(identifier(Name), _)],
 	[token(left_paren, _)],
