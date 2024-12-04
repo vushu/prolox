@@ -53,9 +53,6 @@ evaluate(number(X), Env, state(Env, X)).
 
 evaluate(string(X), Env, state(Env, X)).
 
-evaluate(expr_stmt(S), Env, R) :-
-	evaluate(S, Env, R).
-
 evaluate(factor(left(L), right(R), op(Op)), Env, state(Env2, Res)) :-
 	evaluate(L,
 		Env,
@@ -146,7 +143,7 @@ format("Op is unknown: ~w~n", Op),
 evaluate(expr_stmt(Expr), Env, R) :-
 	evaluate(Expr, Env, R).
 
-evaluate(variable(token(identifier(VarName), _)), Env, state(Env, R)) :-
+evaluate(variable(T), Env, state(Env, R)) :-
 	get_var(VarName, Env, R),
 	!. 
 
@@ -226,16 +223,41 @@ evaluate_block_rest([Stmt|Stmts], Env, state(NewEnv, none)) :-
 		Env1,
 		state(NewEnv, _)).
 
-evaluate(function(identifier(N), parameters(Params), body(B)), Env, state(NewEnv, none)) :-
-	writeln("--------------------------------------"),
-	writeln(N), writeln(Params), writeln(B),
-	define_var(N, lox_function(Params, B, Env), Env, NewEnv).
-	writeln("--------------------------------------").
+evaluate(function(T, parameters(Params), body(B)), Env, state(NewEnv, none)) :-
+	define_var(T, lox_function(Params, B, closure(Env)), Env, NewEnv),
+	!.
+
+bind_args_to_params([], Env, Env, []).
+
+bind_args_to_params([Arg|Args], Env, UpdatedEnv, [R|NewArgs]) :-
+	evaluate(Arg, Env, state(NewEnv, R)),
+	bind_args_to_params(Args, NewEnv, UpdatedEnv, NewArgs).
+
+evaluate(call(callee(T), paren(_), arguments(Args)), Env, state(UpdatedEnv, none)) :-
+	writeln("JUJU MANJI"),
+	writeln(T),
+	evaluate(T, Env, state(E2, R)),
+	writeln("0--0------"),
+	writeln(R),
+	writeln("0--0------"),
+
+	% get_var(T, Env, lox_function(_, _, closure(ClosureEnv))),
+	bind_args_to_params(Args, ClosureEnv, UpdatedEnv, EvaluatedArgs),
+	writeln("----------- [][][[]] -----------------"),
+	writeln(EvaluatedArgs),
+	writeln("----------------------------"),!.
+	% create_new_env(ClosureEnv, NewEnv),
+	% writeln("Func: "),
+	% writeln(NewEnv),
+
+% get_var(Key, env(Store, _), Value) :-
+	% member(Key - Value, Store), !.
 
 evaluate(Expr, E, _) :-
 	writeln("-----------------------------------------------------------"),
 	writeln("Unknown stmt:"),
 	writeln(Expr),
+	writeln("Environment:"),
 	writeln(E),
 	writeln("-----------------------------------------------------------"),
 	halt.

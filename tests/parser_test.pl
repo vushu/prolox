@@ -135,7 +135,7 @@ test(parse_function) :-
 	scan("fun hej(name, age){ print 1;}", Tokens),
 	parse(Tokens,
 		[
-			function(identifier("hej"),
+			function(token(identifier("hej"), 1),
 				parameters([identifier("name"), identifier("age")]),
 				body(block([print(primary(number(1)))])))]).
 

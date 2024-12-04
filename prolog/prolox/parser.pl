@@ -288,14 +288,14 @@ unary_expr(unary(op(Op), right(E)))-->
 call_expr(E)-->
 	primary_expr(E).
 
-call_expr(call(callee(Callee), paren(RParen), arguments(Args)))-->
+call_expr(call(callee(Callee), paren(RParen), arguments(Args))) -->
 	primary_expr(Callee),
 	[token(left_paren, _)],
 	argument_list(Args),
 	[RParen],
 	{
 		RParen = token(right_paren, _)
-		}.
+		},!.
 
 argument_list([Arg, Rest])-->
 	expression(Arg),
@@ -319,9 +319,9 @@ parameter_list([identifier(Param)])-->
 parameter_list([])-->
 	[].
 
-fun_declaration_stmt(function(identifier(Name), parameters(Params), body(B)))-->
+fun_declaration_stmt(function(token(identifier(Name), L), parameters(Params), body(B)))-->
 	[token(fun, _)],
-	[token(identifier(Name), _)],
+	[token(identifier(Name), L)],
 	[token(left_paren, _)],
 	parameter_list(Params),
 	[token(right_paren, _)],
