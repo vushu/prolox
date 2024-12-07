@@ -288,16 +288,17 @@ unary_expr(unary(op(Op), right(E)))-->
 call_expr(E)-->
 	primary_expr(E).
 
-call_expr(call(callee(Callee), paren(RParen), arguments(Args))) -->
+call_expr(call(callee(Callee), paren(RParen), arguments(Args)))-->
 	primary_expr(Callee),
 	[token(left_paren, _)],
 	argument_list(Args),
 	[RParen],
 	{
 		RParen = token(right_paren, _)
-		},!.
+		},
+	!.
 
-argument_list([Arg, Rest])-->
+argument_list([Arg|Rest])-->
 	expression(Arg),
 	[token(comma, _)],
 	argument_list(Rest).
