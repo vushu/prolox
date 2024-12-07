@@ -135,7 +135,8 @@ test(parse_function) :-
 	scan("fun hej(name, age){ print 1;}", Tokens),
 	parse(Tokens,
 		[
-			function(token(identifier("hej"), 1),
+			function(token(identifier("hej"),
+					1),
 				parameters([identifier("name"), identifier("age")]),
 				body(block([print(primary(number(1)))])))]).
 
@@ -146,10 +147,8 @@ test(parse_call) :-
 			expr_stmt(call(callee(variable(token(identifier("hej"),
 								1))),
 					paren(token(right_paren, 1)),
-					arguments([
-							variable(token(identifier("mama"),
-									1)),
-							[variable(token(identifier("papa"), 1))]])))]).
+					arguments([variable(token(identifier("mama"), 1)), variable(token(identifier("papa"), 1))])))]).
+
 
 
 

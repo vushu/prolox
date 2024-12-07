@@ -110,7 +110,8 @@ test(interpret_fibonacci) :-
 			a = b; 
 			b = temp + b;
 		}", Tokens), 
-	parse(Tokens, Stmts), % writeln(Stmts),
+	parse(Tokens, Stmts), 
+	writeln(Stmts),
 	
 	interpret(Stmts).
 
