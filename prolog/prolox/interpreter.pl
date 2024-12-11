@@ -216,28 +216,34 @@ evaluate(block([Stmt|Stmts]), Env, state(NewEnv, none)) :-
 		state(R, _)).
 
 evaluate_block_rest([Stmt|Stmts], Env, state(NewEnv, none)) :-
-	evaluate(Stmt,
-		Env,
-		state(Env1, _)),
-	evaluate_block_rest(Stmts,
-		Env1,
-		state(NewEnv, _)).
+	evaluate(Stmt, Env, state(Env1, _)) -> 
+		evaluate_block_rest(Stmts, Env1, state(NewEnv, _)).
 
 evaluate(function(token(identifier(Name), _), parameters(Params), body(B)), Env, state(NewEnv, none)) :-
-	define_var(Name, lox_function(Params, B, closure(Env)), Env, NewEnv),
-	!.
+	define_var(Name, lox_function(Params, B, closure(Env)), Env, NewEnv), !.
 
 bind_args_to_params([], Env, Env, []).
 
 bind_args_to_params([Arg|Args], Env, UpdatedEnv, [R|NewArgs]) :-
-	evaluate(Arg, Env, state(NewEnv, R)),
+	evaluate(Arg,
+		Env,
+		state(NewEnv, R)),
 	bind_args_to_params(Args, NewEnv, UpdatedEnv, NewArgs).
 
-evaluate(call(callee(V), paren(_), arguments(Args)), Env, state(UpdatedEnv, none)) :-
-	evaluate(V, Env, state(_, lox_function(_, _, closure(ClosureEnv)))),
-	bind_args_to_params(Args, ClosureEnv, UpdatedEnv, EvaluatedArgs),
-	writeln("----------- [][][[]] -----------------"),
-	writeln(EvaluatedArgs).
+link_function_params([], [], Env, Env).
+
+link_function_params([identifier(Param)|Params], [Arg|Args], Env, UpdatedEnv) :-
+	define_var(Param, Arg, Env, Env2),
+	link_function_params(Params, Args, Env2, UpdatedEnv).
+
+evaluate(call(callee(V), paren(_), arguments(Args)), Env, state(UpdatedEnv, R)) :-
+	evaluate(V, Env, state(_, lox_function(Params, Body, closure(ClosureEnv)))),
+	bind_args_to_params(Args, ClosureEnv, Env2, EvaluatedArgs),
+	create_new_env(Env2, Env3),
+	link_function_params(Params, EvaluatedArgs, Env3, Env4),
+	evaluate(Body,
+		Env4,
+		state(UpdatedEnv, R)).
 
 evaluate(Expr, E, _) :-
 	writeln("-----------------------------------------------------------"),
