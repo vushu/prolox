@@ -6,7 +6,7 @@
 test(parse_function) :-
 	scan("fun hej(mama, papa) { 
 		mama = mama / 112;
-		print mama + 42; print papa - 34; } hej(1, 2);", Tokens),
+		print mama + 42; print papa - 34; } hej(1, 24);", Tokens),
 	parse(Tokens, Stmts),
 	interpret(Stmts).
 

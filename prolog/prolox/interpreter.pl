@@ -216,11 +216,21 @@ evaluate(block([Stmt|Stmts]), Env, state(NewEnv, none)) :-
 		state(R, _)).
 
 evaluate_block_rest([Stmt|Stmts], Env, state(NewEnv, none)) :-
-	evaluate(Stmt, Env, state(Env1, _)) -> 
-		evaluate_block_rest(Stmts, Env1, state(NewEnv, _)).
+	evaluate(Stmt,
+		Env,
+		state(Env1, _)) ->
+	evaluate_block_rest(Stmts,
+		Env1,
+		state(NewEnv, _)).
 
 evaluate(function(token(identifier(Name), _), parameters(Params), body(B)), Env, state(NewEnv, none)) :-
-	define_var(Name, lox_function(Params, B, closure(Env)), Env, NewEnv), !.
+	define_var(Name,
+		lox_function(Params,
+			B,
+			closure(Env)),
+		Env,
+		NewEnv),
+	!.
 
 bind_args_to_params([], Env, Env, []).
 
@@ -236,8 +246,25 @@ link_function_params([identifier(Param)|Params], [Arg|Args], Env, UpdatedEnv) :-
 	define_var(Param, Arg, Env, Env2),
 	link_function_params(Params, Args, Env2, UpdatedEnv).
 
+check_arity(Params, Args) :-
+	length(Params, L),
+	length(Args, L);
+length(Params, L1),
+length(Args, L2),
+	format(atom(S),
+		"Expected ~d arguments but got ~d.",
+		[L1, L2]),
+		writeln(S), halt.
+
 evaluate(call(callee(V), paren(_), arguments(Args)), Env, state(UpdatedEnv, R)) :-
-	evaluate(V, Env, state(_, lox_function(Params, Body, closure(ClosureEnv)))),
+	evaluate(V,
+		Env,
+		state(_,
+			lox_function(Params,
+				Body,
+				closure(ClosureEnv)))),
+	check_arity(Args, Params),
+	%Call 
 	bind_args_to_params(Args, ClosureEnv, Env2, EvaluatedArgs),
 	create_new_env(Env2, Env3),
 	link_function_params(Params, EvaluatedArgs, Env3, Env4),
