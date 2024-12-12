@@ -13,7 +13,8 @@ test-interpreter:
 	swipl -s tests/interpreter_test.pl -g run_tests,halt -t 'halt(1)'
 test-isolated_cases:
 	swipl -s tests/isolated_cases_test.pl -g run_tests,halt -t 'halt(1)'
-
+test-builtin_functions:
+	swipl -s tests/builtin_functions_test.pl -g run_tests,halt -t 'halt(1)'
 main:
 	swipl -o run_prolox -g main -c prolog/prolox/main.pl
 

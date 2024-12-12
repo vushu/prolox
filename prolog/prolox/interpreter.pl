@@ -1,5 +1,6 @@
 :- module(interpreter,[interpret/1]).
 :- use_module(environment).
+:- use_module(builtin_functions).
 
 :- discontiguous evaluate/3.
 
@@ -7,8 +8,9 @@
 
 interpret([Stmt]) :-
 	create_new_env(none, Env),
+	define_builtins(Env, Env2),
 	!,
-	evaluate(Stmt, Env, _),
+	evaluate(Stmt, Env2, _),
 	!.
 
 %Multiple statements.
@@ -250,19 +252,17 @@ check_arity(Params, Args) :-
 	length(Params, L),
 	length(Args, L);
 length(Params, L1),
-length(Args, L2),
+	length(Args, L2),
 	format(atom(S),
 		"Expected ~d arguments but got ~d.",
 		[L1, L2]),
-		writeln(S), halt.
+	writeln(S),
+	halt.
 
 evaluate(call(callee(V), paren(_), arguments(Args)), Env, state(UpdatedEnv, R)) :-
 	evaluate(V,
 		Env,
-		state(_,
-			lox_function(Params,
-				Body,
-				closure(ClosureEnv)))),
+		state(_, lox_function(Params, Body, closure(ClosureEnv)))),
 	check_arity(Args, Params),
 	%Call 
 	bind_args_to_params(Args, ClosureEnv, Env2, EvaluatedArgs),
@@ -271,6 +271,9 @@ evaluate(call(callee(V), paren(_), arguments(Args)), Env, state(UpdatedEnv, R)) 
 	evaluate(Body,
 		Env4,
 		state(UpdatedEnv, R)).
+
+evaluate(builtin_func(Func), Env, State) :-
+	call(Func, Env, State).
 
 evaluate(Expr, E, _) :-
 	writeln("-----------------------------------------------------------"),
