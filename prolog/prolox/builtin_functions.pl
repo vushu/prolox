@@ -1,9 +1,18 @@
-:- module(builtin_functions,[define_builtins/2, clock_timer/2]).
+:- module(builtin_functions,[define_builtins/2, clock_timer/3]).
 :- use_module(environment).
+:- use_module(library(system)).
+:- use_module(interpreter).
 
-clock_timer(Env, state(Env, "Hej")) :-
-    writeln(Env),
-    writeln("clock timer calls Jujuju man").
+clock_timer([Arg|Args], Env, state(Env, TimeMs)) :-
+	writeln(Arg),
+	statistics(runtime, [Milliseconds, _]),
+	TimeMs = Milliseconds,
+	format("~d ms",TimeMs).
 
-define_builtins(Env, Env2) :-
-    define_var("clock", lox_function([], builtin_func(clock_timer), closure(Env)), Env , Env2).
+define_builtins(Env, NewEnv) :-
+	define_var("clock",
+		lox_function([identifier("arg")],
+			builtin(clock_timer),
+			closure(Env)),
+		Env,
+		NewEnv).

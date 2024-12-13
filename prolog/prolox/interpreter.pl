@@ -1,4 +1,4 @@
-:- module(interpreter,[interpret/1]).
+:- module(interpreter,[interpret/1, evaluate/3]).
 :- use_module(environment).
 :- use_module(builtin_functions).
 
@@ -234,46 +234,55 @@ evaluate(function(token(identifier(Name), _), parameters(Params), body(B)), Env,
 		NewEnv),
 	!.
 
-bind_args_to_params([], Env, Env, []).
+eval_args([], Env, Env, []).
 
-bind_args_to_params([Arg|Args], Env, UpdatedEnv, [R|NewArgs]) :-
+eval_args([Arg|Args], Env, UpdatedEnv, [R|NewArgs]) :-
 	evaluate(Arg,
 		Env,
 		state(NewEnv, R)),
-	bind_args_to_params(Args, NewEnv, UpdatedEnv, NewArgs).
+	eval_args(Args, NewEnv, UpdatedEnv, NewArgs).
 
-link_function_params([], [], Env, Env).
+define_params([], [], Env, Env).
 
-link_function_params([identifier(Param)|Params], [Arg|Args], Env, UpdatedEnv) :-
+define_params([identifier(Param)|Params], [Arg|Args], Env, UpdatedEnv) :-
 	define_var(Param, Arg, Env, Env2),
-	link_function_params(Params, Args, Env2, UpdatedEnv).
+	define_params(Params, Args, Env2, UpdatedEnv).
 
-check_arity(Params, Args) :-
+check_arity(Args, Params) :-
 	length(Params, L),
 	length(Args, L);
 length(Params, L1),
 	length(Args, L2),
 	format(atom(S),
-		"Expected ~d arguments but got ~d.",
+		"Expected ~d argument(s) but got ~d.",
 		[L1, L2]),
 	writeln(S),
 	halt.
 
-evaluate(call(callee(V), paren(_), arguments(Args)), Env, state(UpdatedEnv, R)) :-
+evaluate_params(Args, Params, ClosureEnv, EvaluatedArgs, Env3) :-
+	check_arity(Args, Params),
+	eval_args(Args, ClosureEnv, Env, EvaluatedArgs),
+	create_new_env(Env, Env2),
+	define_params(Params, EvaluatedArgs, Env2, Env3).
+
+evaluate(call(callee(V), paren(_), arguments(Args)), Env, State) :-
+	writeln("safdasdfsa"),
 	evaluate(V,
 		Env,
-		state(_, lox_function(Params, Body, closure(ClosureEnv)))),
-	check_arity(Args, Params),
-	%Call 
-	bind_args_to_params(Args, ClosureEnv, Env2, EvaluatedArgs),
-	create_new_env(Env2, Env3),
-	link_function_params(Params, EvaluatedArgs, Env3, Env4),
-	evaluate(Body,
-		Env4,
-		state(UpdatedEnv, R)).
+		state(_,
+			lox_function(Params,
+				Body,
+				closure(ClosureEnv)))),
+	evaluate_params(Args, Params, ClosureEnv, EvaluatedArgs, Env2),
+	writeln(Body),
+	call_function(Body, EvaluatedArgs, Env2, State).
 
-evaluate(builtin_func(Func), Env, State) :-
-	call(Func, Env, State).
+call_function(block(B), _, Env, State) :-
+	evaluate(block(B), Env, State).
+
+call_function(builtin(Func), Args, Env, State) :-
+	call(Func, Args, Env, State).
+
 
 evaluate(Expr, E, _) :-
 	writeln("-----------------------------------------------------------"),
