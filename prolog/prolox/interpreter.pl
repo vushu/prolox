@@ -205,7 +205,7 @@ while_loop(Expr, Stmt, Env, state(Env3, none)) :-
 evaluate(block([return(keyword(_), value(V))|_]), Env, state(NewEnv, R)) :-
 	!,
 	create_new_env(Env, Enclosed),
-	evaluate(V, Enclosed, state(Env2, R)), format("Return ~d", R),
+	evaluate(V, Enclosed, state(Env2, R)), format("Return ~w", R),
 	remove_inner_env(Env2, NewEnv).% going out of scope, hence we remove the inner scope.
 
 evaluate(block([Stmt|Stmts]), Env, state(NewEnv, none)) :-
