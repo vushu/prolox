@@ -152,7 +152,7 @@ test(parse_call) :-
 
 test(parse_return) :-
 	scan("fun hej(){ return 1;}", Tokens),
-	parse(Tokens, [function(token(identifier("hej"),1),parameters([]),body(block([return(token(return,1),value(expr_stmt(primary(number(1)))))])))]).
+	parse(Tokens, [function(token(identifier("hej"),1),parameters([]),body(block([return(keyword(token(return,1)),value(expr_stmt(primary(number(1)))))])))]).
 
 
 :- end_tests(parse_tokens).

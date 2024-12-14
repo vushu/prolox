@@ -105,7 +105,7 @@ while_stmt(while(condition(Cond), body(Stmt)))-->
 	[token(right_paren, _)],
 	block_stmt(Stmt).
 
-return_stmt(return(T, value(V))) -->
+return_stmt(return(keyword(T), value(V))) -->
 	[T],
 	{T = token(return, _)},
 	expression_stmt(V).

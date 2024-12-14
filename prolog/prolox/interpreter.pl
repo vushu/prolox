@@ -200,22 +200,25 @@ while_loop(Expr, Stmt, Env, state(Env3, none)) :-
 		while_loop(Expr,
 			Stmt,
 			Env2,
-			state(Env3, _));
-true).
+			state(Env3, _)); true).
+
+evaluate(block([return(keyword(_), value(V))|_]), Env, state(NewEnv, R)) :-
+	!,
+	create_new_env(Env, Enclosed),
+	evaluate(V, Enclosed, state(Env2, R)), format("Return ~d", R),
+	remove_inner_env(Env2, NewEnv).% going out of scope, hence we remove the inner scope.
 
 evaluate(block([Stmt|Stmts]), Env, state(NewEnv, none)) :-
 	!,
 	create_new_env(Env, Enclosed),
-	evaluate(Stmt,
-		Enclosed,
-		state(Env1, _)),
-	evaluate_block_rest(Stmts,
-		Env1,
-		state(Env2, _)),
-	 remove_inner_env(Env2, NewEnv).% going out of scope, hence we remove the inner scope.
-		evaluate_block_rest([],
-		R,
-		state(R, _)).
+	evaluate(Stmt, Enclosed, state(Env1, _)), 
+	evaluate_block_rest(Stmts, Env1, state(Env2, _)),
+	remove_inner_env(Env2, NewEnv).% going out of scope, hence we remove the inner scope.
+
+evaluate_block_rest([], R, state(R, _)).
+
+evaluate_block_rest([return(keyword(_), value(V))|_], Env, state(NewEnv, R)) :-
+	evaluate(V, Env, state(NewEnv, R)), format("Return ~w", R).
 
 evaluate_block_rest([Stmt|Stmts], Env, state(NewEnv, none)) :-
 	evaluate(Stmt,
@@ -274,7 +277,6 @@ evaluate(call(callee(V), paren(_), arguments(Args)), Env, State) :-
 				Body,
 				closure(ClosureEnv)))),
 	evaluate_params(Args, Params, ClosureEnv, EvaluatedArgs, Env2),
-	writeln(Body),
 	call_function(Body, EvaluatedArgs, Env2, State).
 
 call_function(block(B), _, Env, State) :-
