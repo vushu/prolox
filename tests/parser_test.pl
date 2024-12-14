@@ -150,7 +150,9 @@ test(parse_call) :-
 					arguments([variable(token(identifier("mama"), 1)), variable(token(identifier("papa"), 1))])))]).
 
 
-
+test(parse_return) :-
+	scan("fun hej(){ return 1;}", Tokens),
+	parse(Tokens, [function(token(identifier("hej"),1),parameters([]),body(block([return(token(return,1),value(expr_stmt(primary(number(1)))))])))]).
 
 
 :- end_tests(parse_tokens).

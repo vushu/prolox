@@ -260,13 +260,13 @@ length(Params, L1),
 	halt.
 
 evaluate_params(Args, Params, ClosureEnv, EvaluatedArgs, Env3) :-
+	length(Args, L), L > 255, writeln("Too many arguments"), halt;
 	check_arity(Args, Params),
 	eval_args(Args, ClosureEnv, Env, EvaluatedArgs),
 	create_new_env(Env, Env2),
 	define_params(Params, EvaluatedArgs, Env2, Env3).
 
 evaluate(call(callee(V), paren(_), arguments(Args)), Env, State) :-
-	writeln("safdasdfsa"),
 	evaluate(V,
 		Env,
 		state(_,

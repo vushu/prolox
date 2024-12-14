@@ -3,16 +3,24 @@
 :- use_module(library(system)).
 :- use_module(interpreter).
 
-clock_timer([Arg|Args], Env, state(Env, TimeMs)) :-
-	writeln(Arg),
+clock_timer(_, Env, state(Env, TimeMs)) :-
 	statistics(runtime, [Milliseconds, _]),
 	TimeMs = Milliseconds,
-	format("~d ms",TimeMs).
+	format("~d ms", TimeMs).
 
-define_builtins(Env, NewEnv) :-
-	define_var("clock",
-		lox_function([identifier("arg")],
-			builtin(clock_timer),
+wrap_string_to_identifier([], []).
+
+wrap_string_to_identifier([Arg|Args], [identifier(Arg)|Rest]) :-
+	wrap_string_to_identifier(Args, Rest).
+
+create_func(Name, Args, Func, Env, NewEnv) :-
+	wrap_string_to_identifier(Args, IdentifiedArgs),
+	define_var(Name,
+		lox_function(IdentifiedArgs,
+			builtin(Func),
 			closure(Env)),
 		Env,
 		NewEnv).
+
+define_builtins(Env, NewEnv) :-
+	create_func("clock", ["arg"], clock_timer, Env, NewEnv).

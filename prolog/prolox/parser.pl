@@ -105,6 +105,12 @@ while_stmt(while(condition(Cond), body(Stmt)))-->
 	[token(right_paren, _)],
 	block_stmt(Stmt).
 
+return_stmt(return(T, value(V))) -->
+	[T],
+	{T = token(return, _)},
+	expression_stmt(V).
+
+
 for_cond(Cond)-->
 	[token(semicolon, _)],
 	{
@@ -171,7 +177,10 @@ statement(Stmt)-->
 
 statement(Stmt)-->
 	while_stmt(Stmt);
-for_stmt(Stmt).
+	for_stmt(Stmt).
+
+statement(Stmt)-->
+	return_stmt(Stmt).
 
 statement(Stmt)-->
 	expression_stmt(Stmt).
