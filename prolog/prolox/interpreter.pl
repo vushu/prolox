@@ -17,10 +17,11 @@ interpret([Stmt]) :-
 
 interpret([Stmt|Stmts]) :-
 	create_new_env(none, Env),
+	define_builtins(Env, Env2),
 	evaluate(Stmt,
-		Env,
-		state(Env1, _)),
-	evaluate_rest(Stmts, Env1, _).
+		Env2,
+		state(Env3, _)),
+	evaluate_rest(Stmts, Env3, _).
 
 evaluate_rest([Stmt|Stmts], Env, state(NewEnv, _)) :-
 	evaluate(Stmt,
@@ -66,14 +67,9 @@ evaluate(factor(left(L), right(R), op(Op)), Env, state(Env2, Res)) :-
 Res is L2/R2).
 
 evaluate(term(left(L), right(R), op(Op)), Env, state(Env2, Res)) :-
-	evaluate(L,
-		Env,
-		state(Env1, L2)),
-	evaluate(R,
-		Env1,
-		state(Env2, R2)),
-	(Op = plus, Res is L2 + R2;
-Res is L2 - R2).
+	evaluate(L, Env, state(Env1, L2)),
+	evaluate(R, Env1, state(Env2, R2)),
+	(Op = plus, Res is L2 + R2; Res is L2 - R2).
 
 evaluate(or(left(L), right(R), op(token(or, _))), Env, state(Env2, Res)) :-
 	evaluate(L,
@@ -165,13 +161,9 @@ evaluate(assignment(assign_name(variable(token(identifier(VarName), _))), value(
 	!.
 
 evaluate(if(condition(Expr), then(Stmt), else(none)), Env, state(Env2, none)) :-
-	evaluate(Expr,
-		Env,
-		state(Env1, true)),
-	evaluate(Stmt,
-		Env1,
-		state(Env2, _)),
-	!.
+	evaluate(Expr, Env, state(Env1, X)),
+	(X -> evaluate(Stmt, Env1, state(Env2, _))
+	; true).
 
 evaluate(if(condition(Expr), then(_), else(ElseStmt)), Env, state(Env2, none)) :-
 	evaluate(Expr,
@@ -183,17 +175,11 @@ evaluate(if(condition(Expr), then(_), else(ElseStmt)), Env, state(Env2, none)) :
 	!.
 
 evaluate(while(condition(Expr), body(Stmt)), Env, state(Env2, none)) :-
-	while_loop(Expr,
-		Stmt,
-		Env,
-		state(Env2, none)),
+	while_loop(Expr, Stmt, Env, state(Env2, none)),
 	!.
 
 while_loop(Expr, Stmt, Env, state(Env3, none)) :-
-	evaluate(Expr,
-		Env,
-		state(Env1, Res)),
-	(Res = true,
+	evaluate(Expr, Env, state(Env1, Res)), (Res = true,
 		evaluate(Stmt,
 			Env1,
 			state(Env2, _)),
@@ -202,23 +188,18 @@ while_loop(Expr, Stmt, Env, state(Env3, none)) :-
 			Env2,
 			state(Env3, _)); true).
 
-evaluate(block([return(keyword(_), value(V))|_]), Env, state(NewEnv, R)) :-
-	!,
+
+execute_block([Stmt|Stmts], Env, State) :-
+	evaluate(Stmt, Env, state(Env1, _)), 
+	evaluate_block_rest(Stmts, Env1, State).
+
+evaluate(block(Stmts), Env, S) :-
 	create_new_env(Env, Enclosed),
-	evaluate(V, Enclosed, state(Env2, R)), format("Return ~w", R),
-	remove_inner_env(Env2, NewEnv).% going out of scope, hence we remove the inner scope.
+	execute_block(Stmts, Enclosed, S).
 
-evaluate(block([Stmt|Stmts]), Env, state(NewEnv, none)) :-
-	!,
-	create_new_env(Env, Enclosed),
-	evaluate(Stmt, Enclosed, state(Env1, _)), 
-	evaluate_block_rest(Stmts, Env1, state(Env2, _)),
-	remove_inner_env(Env2, NewEnv).% going out of scope, hence we remove the inner scope.
-
-evaluate_block_rest([], R, state(R, _)).
-
-evaluate_block_rest([return(keyword(_), value(V))|_], Env, state(NewEnv, R)) :-
-	evaluate(V, Env, state(NewEnv, R)), format("Return ~w", R).
+evaluate_block_rest([], Env, state(Env2, _)) :-
+	writeln("ENVVVVV END"), writeln(Env),
+	remove_inner_env(Env, Env2).% going out of scope, hence we remove the inner scope.
 
 evaluate_block_rest([Stmt|Stmts], Env, state(NewEnv, none)) :-
 	evaluate(Stmt,
@@ -270,21 +251,22 @@ evaluate_params(Args, Params, ClosureEnv, EvaluatedArgs, Env3) :-
 	define_params(Params, EvaluatedArgs, Env2, Env3).
 
 evaluate(call(callee(V), paren(_), arguments(Args)), Env, State) :-
-	evaluate(V,
-		Env,
-		state(_,
-			lox_function(Params,
-				Body,
-				closure(ClosureEnv)))),
-	evaluate_params(Args, Params, ClosureEnv, EvaluatedArgs, Env2),
-	call_function(Body, EvaluatedArgs, Env2, State).
+	evaluate(V, Env, state(Env, lox_function(Params, Body, closure(_)))),
+	evaluate_params(Args, Params, Env, EvaluatedArgs, Env2),
+	catch(
+	call_function(Body, EvaluatedArgs, Env2, Some), return(state(Weird, R)), State = state(Env2 ,R)).
 
-call_function(block(B), _, Env, State) :-
-	evaluate(block(B), Env, State).
+call_function(block(Stmts), _, Env, State) :-
+	create_new_env(Env, Enclosed),
+	execute_block(Stmts, Enclosed, State).
 
 call_function(builtin(Func), Args, Env, State) :-
 	call(Func, Args, Env, State).
 
+evaluate(return(keyword(_), value(E)), Env, state(_, none)) :-
+	evaluate(E, Env, S),
+	format("Return something "),
+	throw(return(S)).
 
 evaluate(Expr, E, _) :-
 	writeln("-----------------------------------------------------------"),
