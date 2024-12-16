@@ -198,8 +198,9 @@ evaluate(block(Stmts), Env, S) :-
 	execute_block(Stmts, Enclosed, S).
 
 evaluate_block_rest([], Env, state(Env2, _)) :-
-	writeln("ENVVVVV END"), writeln(Env),
-	remove_inner_env(Env, Env2).% going out of scope, hence we remove the inner scope.
+	format("~nBEFORE ENVIRONMENT: ~n~w~n", Env),
+	remove_inner_env(Env, Env2),% going out of scope, hence we remove the inner scope.
+	format("~nAFTER REMOVE ENVIRONMENT: ~n~w~n", Env2).
 
 evaluate_block_rest([Stmt|Stmts], Env, state(NewEnv, none)) :-
 	evaluate(Stmt,
@@ -251,10 +252,10 @@ evaluate_params(Args, Params, ClosureEnv, EvaluatedArgs, Env3) :-
 	define_params(Params, EvaluatedArgs, Env2, Env3).
 
 evaluate(call(callee(V), paren(_), arguments(Args)), Env, State) :-
-	evaluate(V, Env, state(Env, lox_function(Params, Body, closure(_)))),
-	evaluate_params(Args, Params, Env, EvaluatedArgs, Env2),
+	evaluate(V, Env, state(Env, lox_function(Params, Body, closure(CEnv)))),
+	evaluate_params(Args, Params, CEnv, EvaluatedArgs, Env2),
 	catch(
-	call_function(Body, EvaluatedArgs, Env2, Some), return(state(Weird, R)), State = state(Env2 ,R)).
+	call_function(Body, EvaluatedArgs, Env2, State), return(state(_, R)), State = state(Env2 ,R)).
 
 call_function(block(Stmts), _, Env, State) :-
 	create_new_env(Env, Enclosed),
