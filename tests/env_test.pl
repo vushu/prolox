@@ -44,4 +44,22 @@ test(assign_env_more_enclosing) :-
 	assign_var(a, "A lonkey", Third, Last), 
 	get_var(a, Last, "A lonkey").
 
+test(extract_enclosing) :-
+	Env = env([i-2],env([clock-lox_function([identifier(arg)],builtin(clock_timer),closure(env([],none)))],none)),
+	extract_enclosing(Env, env([clock-lox_function([identifier(arg)],builtin(clock_timer),closure(env([],none)))],none)).
+
+test(extract_enclosing2) :-
+	Env = env([clock-lox_function([identifier(arg)],builtin(clock_timer),closure(env([],none)))],none), 
+	extract_enclosing(Env, env([], none)).
+
+test(extract_enclosing3) :-
+	Env = env([], env([],env([i-2],env([clock-lox_function([identifier(arg)],builtin(clock_timer),closure(env([],none)))],none)))),
+	extract_enclosing(Env, Env1),
+	extract_enclosing(Env1, Env2), 
+	extract_enclosing(Env2, env([clock-lox_function([identifier(arg)],builtin(clock_timer),closure(env([],none)))],none)).
+
+test(extract_enclosing4) :-
+	Env= env([],env([i-5],env([clock-lox_function([identifier(arg)],builtin(clock_timer),closure(env([],none)))],none))),
+	extract_enclosing(Env,env([i-5],env([clock-lox_function([identifier(arg)],builtin(clock_timer),closure(env([],none)))],none))).
+
  :- end_tests(env).

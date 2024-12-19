@@ -1,5 +1,5 @@
 :- module(scanner,[scan/2]).
-
+:- use_module(library(dcg/basics)).
 tokens([Token | RestTokens]) -->
     token_kind(Token, 1),
     tokens(RestTokens). 
@@ -33,16 +33,15 @@ token_kind(token(greater_equal, Line), Line) --> ['>','='].
 token_kind(token(greater, Line), Line) --> ['>'].
 token_kind(X, Line) --> ['/', '/'],{ writeln("comment detected") }, skip_until_newline(Line, NextLine), token_kind(X, NextLine).
 token_kind(token(slash, Line), Line) --> ['/'].
-token_kind(X, Line) --> ['\n'], { 
-    % writeln("newline detected"),
- UpdateLine is Line + 1 },
+token_kind(X, Line) --> ['\n'], { UpdateLine is Line + 1 },
 token_kind(X, UpdateLine).
 token_kind(X, Line) --> ['\t'], token_kind(X, Line).
 token_kind(X, Line) --> [' '], token_kind(X, Line).
+% token_kind(X, Line) --> white, token_kind(X, Line).
 token_kind(token(number(Value), Line), Line) --> initial_numbers(Chars), { number_chars(Value, Chars) }. % Convert to number
 token_kind(token(Result, Line), Line) --> get_keyword_or_identifier(Result).
 token_kind(token(string(Value), Line), Line) --> get_string(Chars), { string_chars(Value, Chars)}.
-token_kind(token([], Line), Line) --> [Ch], {throw(format("Unknown character '~w'", Ch))}.
+token_kind(token([], Line), Line) --> [Ch], {format("Unknown character '~w'~n", [Ch]), halt}.
 
 get_keyword_or_identifier(Result) --> get_alpha(Chars), {string_chars(Value, Chars), keyword(Value, Result)}.
 

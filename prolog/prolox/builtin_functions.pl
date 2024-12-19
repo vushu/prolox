@@ -1,12 +1,11 @@
 :- module(builtin_functions,[define_builtins/2, clock_timer/3]).
 :- use_module(environment).
 :- use_module(library(system)).
-:- use_module(interpreter).
+:- use_module(library(runtime)).
+% :- use_module(interpreter).
 
-clock_timer(_, Env, state(Env, TimeMs)) :-
-	statistics(runtime, [Milliseconds, _]),
-	TimeMs = Milliseconds,
-	format("~d ms", TimeMs).
+clock_timer(Args, Env, state(Env, TimeMs)) :-
+	writeln("A").
 
 wrap_string_to_identifier([], []).
 

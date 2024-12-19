@@ -1,8 +1,9 @@
-:- module(environment,[create_new_env/2, define_var/4, get_var/3, assign_var/4, remove_inner_env/2]).
+:- module(environment,[create_new_env/2, define_var/4, get_var/3, assign_var/4, extract_enclosing/2]).
 
 create_new_env(Enclosing, env([], Enclosing)).
 
-extract_enclosing(env(_, Enclosing), Enclosing).
+extract_enclosing(env(_, none), env([], none)) :- !.
+extract_enclosing(env(_, C), C).
 
 define_var(Key, Value, env(Store, EnclosingEnv), env([Key-Value| Store], EnclosingEnv)).
 
@@ -29,6 +30,7 @@ assign_var(_, _, env([], _), none) :-
 	writeln("Failed to assign"), halt.
 
 %When going out of scope
-remove_inner_env(env([], none), env([],none)).
+% extract_enclosing(env(Foo, none), env(Foo,none)) :- writeln("this case wtf") .
 
-remove_inner_env(env(_, Enclosed), Enclosed).
+% % extract_enclosing(env([_], Enclosed), Enclosed) :- writeln("NONO this case wtf") .
+% extract_enclosing(env(Foo, Enclosed), Enclosed) :- writeln("Asdfasdfasdf").
