@@ -4,21 +4,6 @@
 
 :- discontiguous evaluate/3.
 
-%Single statement.
-
-% interpret([Stmt]) :-
-% 	writeln("huh"),
-% 	writeln("huh"),
-% 	writeln("huh"),
-% 	writeln("huh").
-% 	create_new_env(none, Env),
-% 	define_builtins(Env, Env2),
-% 	!,
-% 	evaluate(Stmt, Env2, _),
-% 	!.
-
-%Multiple statements.
-
 interpret(Stmts) :-
 	create_new_env(none, Env),
 	define_builtins(Env, Env2),
@@ -194,8 +179,6 @@ evaluate(block(Stmts), Env, state(Env1, R)) :-
 execute_block(Stmts, Env, state(UpdatedEnv, R)) :-
 	evaluate_block_rest(Stmts, Env, state(Env1, R)),
 	extract_enclosing(Env1, UpdatedEnv).
-	% writeln("-------------------------------- UPDATED"),
-	% writeln(UpdatedEnv).
 
 evaluate_block_rest([], Env, state(Env, none)).
 
@@ -247,9 +230,7 @@ call_function(block(Stmts), _, Env, state(Env1, R)) :-
 	execute_block(Stmts, Env, state(Env1, R)).
 
 call_function(builtin(Func), Args, Env, State) :-
-	writeln("should call"),
-	writeln(Func),
-	call(Func, Args, Env, State), writeln(State),!.
+	call(Func, Args, Env, State).
 
 evaluate(return(keyword(_), value(E)), Env, state(Env2, return_value(R))) :-
 	evaluate(E, Env, state(Env2, R)).
