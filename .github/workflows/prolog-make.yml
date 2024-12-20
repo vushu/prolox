@@ -21,6 +21,10 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y swi-prolog
 
-    - name: Run Makefile
+    - name: Run Tests
       run: |
         make test
+
+    - name: Build and run
+      run: |
+        make && ./run_prolox
