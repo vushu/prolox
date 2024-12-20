@@ -78,10 +78,7 @@ var_declaration_stmt(var_decl(name(T), initializer(Stmt)))-->
 		},
 	[token(equal, _)],
 	expression(Stmt),
-	([token(semicolon, _)];
-{
-			throw("Expected ';' after var declaration.")
-			}).
+	([token(semicolon, _)]).
 
 if_stmt(if(condition(Expr), then(Stmt), else(ElseBlock)))-->
 	[token(if, _)],

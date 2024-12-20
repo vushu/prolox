@@ -154,6 +154,10 @@ test(parse_return) :-
 	scan("fun hej(){ return 1;}", Tokens),
 	parse(Tokens, [function(token(identifier("hej"),1),parameters([]),body(block([return(keyword(token(return,1)),value(expr_stmt(primary(number(1)))))])))]).
 
+test(parse_var_decl_func_call) :-
+	scan("var now = clock();", Tokens),
+	parse(Tokens, [var_decl(name(token(identifier("now"),1)),initializer(call(callee(variable(token(identifier("clock"),1))),paren(token(right_paren,1)),arguments([]))))]).
+
 
 :- end_tests(parse_tokens).
 

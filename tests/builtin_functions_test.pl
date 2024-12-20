@@ -4,7 +4,7 @@
 :- use_module(prolog/prolox/interpreter).
 
 test(parse_function) :-
-	scan("print clock(\"Mama\");", Tokens),
+	scan("var now = clock(); print now;", Tokens), 
 	parse(Tokens, Stmts),
 	interpret(Stmts).
 

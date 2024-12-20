@@ -20,4 +20,5 @@ create_func(Name, Args, Func, Env, NewEnv) :-
 		NewEnv).
 
 define_builtins(Env, NewEnv) :-
-	create_func("clock", ["arg"], clock_timer, Env, NewEnv).
+	create_func("clock", [], clock_timer, Env, NewEnv).
+	% create_func("clock", ["arg"], clock_timer, Env, NewEnv).% 
