@@ -25,7 +25,7 @@ evaluate_rest([Stmt|Stmts], Env, state(NewEnv, _)) :-
 
 evaluate(print(Stmt), Env, state(Env1, none)) :-
 	evaluate(Stmt, Env, state(Env1, R)),
-	format("Print: ~w~n", R), !.
+	format("~w~n", R), !.
 
 evaluate(primary(true), Env, state(Env, true)).
 
@@ -261,4 +261,3 @@ is_truthy(false, false).
 is_truthy(nil, false).
 
 is_truthy(_, true).
-
