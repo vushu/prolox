@@ -24,7 +24,7 @@ test(interpret_less_equal) :-
 	interpret(Stmts).
 
 test(interpret_greater_equal) :-
-	scan("print 1 >= 1; print 2 > 5;", Tokens), 
+	scan("print 1 >= 1; print 2 > 5; ", Tokens), 
 	parse(Tokens, Stmts), 
 	interpret(Stmts).
 

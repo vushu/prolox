@@ -1,47 +1,44 @@
 :- module(scanner,[scan/2]).
 :- use_module(library(dcg/basics)).
-tokens([Token | RestTokens]) -->
-    token_kind(Token, 1),
-    tokens(RestTokens). 
-
-tokens([]) --> [].
+tokens(Tokens) --> token_kind(Tokens, 1).
+tokens(eof) --> [].
 
 comment(Line, NextLine) --> ['/','/'], skip_until_newline(Line, NextLine).
 
 skip_until_newline(Line, NextLine) --> {NextLine is Line + 1}, ['\n'].
 skip_until_newline(Line, NextLine) --> [X],  {format("Skipping: ~w \n", X)}, skip_until_newline(Line, NextLine).
-skip_until_newline(_, _) --> [],tokens([]), !.
+skip_until_newline(_, _) --> [], tokens([]), !.
 
 % DCG rules to recognize specific tokens
-token_kind(token(left_paren, Line), Line)  --> ['('].
-token_kind(token(right_paren, Line), Line) --> [')'].
-token_kind(token(left_brace, Line), Line)  --> ['{'].
-token_kind(token(right_brace, Line), Line) --> ['}'].
-token_kind(token(comma, Line), Line) --> [','].
-token_kind(token(dot, Line), Line) --> ['.'].
-token_kind(token(minus, Line), Line) --> ['-'].
-token_kind(token(plus, Line ), Line) --> ['+'].
-token_kind(token(semicolon, Line), Line) --> [';'].
-token_kind(token(star, Line), Line) --> ['*'].
-token_kind(token(bang_equal, Line), Line) --> ['!','='].
-token_kind(token(bang, Line), Line) --> ['!'].
-token_kind(token(equal_equal, Line), Line) --> ['=','='] .
-token_kind(token(equal, Line), Line) --> ['='].
-token_kind(token(less_equal, Line), Line) --> ['<','='].
-token_kind(token(less, Line), Line) --> ['<'].
-token_kind(token(greater_equal, Line), Line) --> ['>','='].
-token_kind(token(greater, Line), Line) --> ['>'].
-token_kind(X, Line) --> ['/', '/'],{ writeln("comment detected") }, skip_until_newline(Line, NextLine), token_kind(X, NextLine).
-token_kind(token(slash, Line), Line) --> ['/'].
-token_kind(X, Line) --> ['\n'], { UpdateLine is Line + 1 },
-token_kind(X, UpdateLine).
-token_kind(X, Line) --> ['\t'], token_kind(X, Line).
-token_kind(X, Line) --> [' '], token_kind(X, Line).
-% token_kind(X, Line) --> white, token_kind(X, Line).
-token_kind(token(number(Value), Line), Line) --> initial_numbers(Chars), { number_chars(Value, Chars) }. % Convert to number
-token_kind(token(Result, Line), Line) --> get_keyword_or_identifier(Result).
-token_kind(token(string(Value), Line), Line) --> get_string(Chars), { string_chars(Value, Chars)}.
-token_kind(token([], Line), Line) --> [Ch], {format("Unknown character '~w'~n", [Ch]), halt}.
+token_kind(Z, Line)  --> ['('], token_kind(Zs, Line), {Z = [token(left_paren, Line) | Zs]}.
+token_kind(Z, Line) --> [')'], token_kind(Zs, Line), {Z = [token(right_paren, Line) | Zs]}.
+token_kind(Z, Line)  --> ['{'], token_kind(Zs, Line), {Z = [token(left_brace, Line) | Zs]}.
+token_kind(Z, Line) --> ['}'], token_kind(Zs, Line), {Z = [token(right_brace, Line) | Zs]}.
+token_kind(Z, Line) --> [','], token_kind(Zs, Line), {Z = [token(comma, Line) | Zs]}.
+token_kind(Z, Line) --> ['.'], token_kind(Zs, Line), {Z = [token(dot, Line)| Zs]}.
+token_kind(Z, Line) --> ['-'], token_kind(Zs, Line), {Z = [token(minus, Line) | Zs]}.
+token_kind(Z, Line) --> ['+'], token_kind(Zs, Line), {Z = [token(plus, Line) | Zs]}.
+token_kind(Z, Line) --> [';'], token_kind(Zs, Line), {Z = [token(semicolon, Line) | Zs]}.
+token_kind(Z, Line) --> ['*'], token_kind(Zs, Line), {Z = [token(star, Line) | Zs]}.
+token_kind(Z, Line) --> ['!','='], token_kind(Zs, Line), {Z = [token(bang_equal, Line) | Zs]}.
+token_kind(Z, Line) --> ['!'], token_kind(Zs, Line), {Z = [token(bang, Line)| Zs]}.
+token_kind(Z, Line) --> ['=','='], token_kind(Zs, Line), {Z = [token(equal_equal, Line)| Zs]}.
+token_kind(Z, Line) --> ['='], token_kind(Zs, Line), {Z = [token(equal, Line) | Zs]}.
+token_kind(Z, Line) --> ['<','='], token_kind(Zs, Line), {Z = [token(less_equal, Line)| Zs]}.
+token_kind(Z, Line) --> ['<'], token_kind(Zs, Line), {Z = [token(less, Line) | Zs]}.
+token_kind(Z, Line) --> ['>','='], token_kind(Zs, Line), {Z = [token(greater_equal, Line) | Zs ]}.
+token_kind(Z, Line) --> ['>'], token_kind(Zs, Line), {Z = [token(greater, Line)| Zs]}.
+token_kind(Zs, Line) --> ['/', '/'], { writeln("comment detected") }, skip_until_newline(Line, NextLine), token_kind(Zs, NextLine).
+token_kind(Z, Line) --> ['/'], token_kind(Zs, Line), {Z = [token(slash, Line) | Zs]}.
+token_kind(Zs, Line) --> ['\n'], { UpdateLine is Line + 1 }, token_kind(Zs, UpdateLine).
+token_kind(Zs, Line) --> ['\t'], token_kind(Zs, Line).
+token_kind(Zs, Line) --> white, token_kind(Zs, Line).
+
+token_kind(Z, Line) --> initial_numbers(Chars), token_kind(Zs, Line), { number_chars(Value, Chars), Z = [token(number(Value), Line)| Zs] }. % Convert to number
+token_kind(Z, Line) --> get_keyword_or_identifier(Result), token_kind(Zs, Line), {Z = [token(Result, Line) | Zs]}.
+token_kind(Z, Line) --> get_string(Chars), token_kind(Zs, Line),  { string_chars(Value, Chars), Z = [token(string(Value), Line) | Zs]}.
+token_kind([], _) --> [].
+% token_kind(_) --> [Ch], {format("Unknown character '~w'~n", [Ch]), halt}.
 
 get_keyword_or_identifier(Result) --> get_alpha(Chars), {string_chars(Value, Chars), keyword(Value, Result)}.
 
