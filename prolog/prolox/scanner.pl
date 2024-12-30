@@ -1,12 +1,6 @@
 :- module(scanner,[scan/2]).
 tokens(Tokens) --> token_kind(Tokens, 1).
 
-comment(Line, NextLine) --> ['/','/'], skip_until_newline(Line, NextLine).
-
-skip_until_newline(Line, NextLine) --> {NextLine is Line + 1}, ['\n'].
-skip_until_newline(Line, NextLine) --> [X],  {format("Skipping: ~w \n", X)}, skip_until_newline(Line, NextLine).
-skip_until_newline(_, _) --> [], tokens([]), !.
-
 % DCG rules to recognize specific tokens
 token_kind(Z, Line)  --> ['('], token_kind(Zs, Line), {Z = [token(left_paren, Line) | Zs]}.
 token_kind(Z, Line) --> [')'], token_kind(Zs, Line), {Z = [token(right_paren, Line) | Zs]}.
@@ -36,7 +30,6 @@ token_kind(Z, Line) --> initial_numbers(Chars), token_kind(Zs, Line), { number_c
 token_kind(Z, Line) --> get_keyword_or_identifier(Result), token_kind(Zs, Line), {Z = [token(Result, Line) | Zs]}.
 token_kind(Z, Line) --> get_string(Chars), token_kind(Zs, Line),  { string_chars(Value, Chars), Z = [token(string(Value), Line) | Zs]}.
 token_kind([], _) --> [].
-% token_kind(_) --> [Ch], {format("Unknown character '~w'~n", [Ch]), halt}.
 
 get_keyword_or_identifier(Result) --> get_alpha(Chars), {string_chars(Value, Chars), keyword(Value, Result)}.
 
@@ -58,6 +51,10 @@ keyword("var", var).
 keyword("while", while).
 keyword(X, identifier(X)).  % is then identifier
 
+skip_until_newline(Line, NextLine) --> {NextLine is Line + 1}, ['\n'].
+skip_until_newline(Line, NextLine) --> [X],  {format("Skipping: ~w \n", X)}, skip_until_newline(Line, NextLine).
+skip_until_newline(_, _) --> [], tokens([]), !.
+
 get_string(String) --> ['"'], extract_string(String).
 extract_string([Ch| Rest]) --> [Ch], extract_string(Rest).
 extract_string([]) --> ['"'].
@@ -74,7 +71,7 @@ extract_numbers([]) --> [].
 extract_decimals([Digit | Rest]) --> is_digit(Digit), extract_decimals(Rest).
 extract_decimals([]) --> [].
 
-% % DCG rule to match a single digit
+% DCG rule to match a single digit
 is_alpha_numberic(A)  --> is_alphabet(A); is_digit(A).
 is_digit(D) --> [D], { char_type(D, digit) }.
 is_alphabet(Ch) --> [Ch], { is_alpha(Ch) }.
