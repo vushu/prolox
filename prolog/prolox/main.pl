@@ -17,7 +17,7 @@ phrase_string_codes :-
 
 
 main :-
-	scan("for(var i = 0; i <= 5; i = i + 1) { print i; }", Tokens),
+	scan("    for(var i = 0; i <= 5; i = i + 1) { print i; }    ", Tokens),
 	writeln(Tokens),
 	parse(Tokens, Stmts),
 	interpret(Stmts), phrase_string_codes.

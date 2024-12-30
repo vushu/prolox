@@ -1,7 +1,5 @@
 :- module(scanner,[scan/2]).
-:- use_module(library(dcg/basics)).
 tokens(Tokens) --> token_kind(Tokens, 1).
-tokens(eof) --> [].
 
 comment(Line, NextLine) --> ['/','/'], skip_until_newline(Line, NextLine).
 
@@ -32,7 +30,7 @@ token_kind(Zs, Line) --> ['/', '/'], { writeln("comment detected") }, skip_until
 token_kind(Z, Line) --> ['/'], token_kind(Zs, Line), {Z = [token(slash, Line) | Zs]}.
 token_kind(Zs, Line) --> ['\n'], { UpdateLine is Line + 1 }, token_kind(Zs, UpdateLine).
 token_kind(Zs, Line) --> ['\t'], token_kind(Zs, Line).
-token_kind(Zs, Line) --> white, token_kind(Zs, Line).
+token_kind(Zs, Line) --> [' '], token_kind(Zs, Line).
 
 token_kind(Z, Line) --> initial_numbers(Chars), token_kind(Zs, Line), { number_chars(Value, Chars), Z = [token(number(Value), Line)| Zs] }. % Convert to number
 token_kind(Z, Line) --> get_keyword_or_identifier(Result), token_kind(Zs, Line), {Z = [token(Result, Line) | Zs]}.
