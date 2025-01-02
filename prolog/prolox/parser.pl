@@ -60,7 +60,7 @@ block_stmt(block([]))-->
 			}).
 
 block_stmt_rest([Stmt|Stmts])-->
-	var_declaration_stmt(Stmt),
+	declaration_stmt(Stmt),
 	block_stmt_rest(Stmts).
 
 block_stmt_rest([])-->

@@ -7,25 +7,21 @@
 interpret(Stmts) :-
 	create_new_env(none, Env),
 	define_builtins(Env, Env2),
-	evaluate_rest(Stmts, Env2, state(_, _)),
-	writeln("---------------------------------- DONE INTERPRETING------------------------").
-	% writeln(Env3).
+	evaluate_rest(Stmts, state(Env2, none), NewState),
+	writeln("---------------------------------- DONE INTERPRETING --------------------------"),
+	writeln("State: "), writeln(NewState),
+	writeln("-------------------------------------------------------------------------------").
 
-evaluate_rest([], Env, state(Env, none)).
+evaluate_rest([], LastState, LastState).
 
-evaluate_rest([Stmt|Stmts], Env, state(NewEnv, _)) :-
-	evaluate(Stmt,
-		Env,
-		state(Env1, _)),
-	evaluate_rest(Stmts,
-		Env1,
-		state(NewEnv, _)),
-	!.
+evaluate_rest([Stmt|Stmts], state(Env, _), NewState) :-
+	evaluate(Stmt, Env, S),
+	evaluate_rest(Stmts, S, NewState).
 
 
 evaluate(print(Stmt), Env, state(Env1, none)) :-
 	evaluate(Stmt, Env, state(Env1, R)),
-	format("~w~n", R), !.
+	format("~w~n", R).
 
 evaluate(primary(true), Env, state(Env, true)).
 
@@ -177,14 +173,15 @@ evaluate(block(Stmts), Env, state(Env1, R)) :-
 	execute_block(Stmts, Enclosed, state(Env1, R)).
 
 execute_block(Stmts, Env, state(UpdatedEnv, R)) :-
-	evaluate_block_rest(Stmts, Env, state(Env1, R)),
+	evaluate_block_rest(Stmts, state(Env, none), state(Env1, R)),
 	extract_enclosing(Env1, UpdatedEnv).
 
-evaluate_block_rest([], Env, state(Env, none)).
 
-evaluate_block_rest([Stmt|Stmts], Env, State) :-
+evaluate_block_rest([], L, L).
+
+evaluate_block_rest([Stmt|Stmts], state(Env, _), State) :-
 	evaluate(Stmt, Env, state(Env1, Res)),
-	(Res = return_value(_) -> State = state(Env1, Res); evaluate_block_rest(Stmts, Env1, State)).
+	(Res = return_value(_) -> State = state(Env1, Res); evaluate_block_rest(Stmts, state(Env1, Res), State)).
 
 evaluate(function(token(identifier(Name), _), parameters(Params), body(B)), Env, state(NewEnv, none)) :-
 	define_var(Name, lox_function(Params, B, closure([])), Env, NewEnv), !.
@@ -204,19 +201,19 @@ define_params([identifier(Param)|Params], [Arg|Args], Env, UpdatedEnv) :-
 	define_params(Params, Args, Env2, UpdatedEnv).
 
 check_arity(Args, Params) :-
-	length(Params, L),
-	length(Args, L);
+	(length(Params, L),
+	length(Args, L) -> true;
 length(Params, L1),
 	length(Args, L2),
 	format(atom(S),
 		"Expected ~d argument(s) but got ~d.",
 		[L1, L2]),
 	writeln(S),
-	halt.
+	halt).
 
 evaluate_params(Args, Params, ClosureEnv, EvaluatedArgs, Env3) :-
-	length(Args, L), L > 255, writeln("Too many arguments"), halt;
-	check_arity(Args, Params),
+	(length(Args, L), L > 255 -> writeln("Too many arguments"), halt;
+	check_arity(Args, Params)),
 	eval_args(Args, ClosureEnv, Env, EvaluatedArgs),
 	define_params(Params, EvaluatedArgs, Env, Env3).
 
@@ -224,7 +221,9 @@ evaluate(call(callee(V), paren(_), arguments(Args)), Env, state(Env3, R)) :-
 	evaluate(V, Env, state(Env, lox_function(Params, Body, closure(_)))),
 	create_new_env(Env, Enclosed),
 	evaluate_params(Args, Params, Enclosed, EvaluatedArgs, Env2),
-	call_function(Body, EvaluatedArgs, Env2, state(Env3, return_value(R))).
+	call_function(Body, EvaluatedArgs, Env2, state(Env3, Res)), 
+	% Extracting result.
+	(Res = return_value(M) -> R = M; R = Res).
 
 call_function(block(Stmts), _, Env, state(Env1, R)) :-
 	execute_block(Stmts, Env, state(Env1, R)).
