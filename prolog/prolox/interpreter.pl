@@ -7,7 +7,7 @@
 interpret(Stmts) :-
 	create_new_env(none, Env),
 	define_builtins(Env, Env2),
-	evaluate_rest(Stmts, state(Env2, none), NewState),
+	once(evaluate_rest(Stmts, state(Env2, none), NewState)),
 	writeln("---------------------------------- DONE INTERPRETING --------------------------"),
 	writeln("State: "), writeln(NewState),
 	writeln("-------------------------------------------------------------------------------").
