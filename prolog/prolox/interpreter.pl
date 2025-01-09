@@ -184,7 +184,7 @@ evaluate_block_rest([Stmt|Stmts], state(Env, _), State) :-
 	(Res = return_value(_) -> State = state(Env1, Res); evaluate_block_rest(Stmts, state(Env1, Res), State)).
 
 evaluate(function(token(identifier(Name), _), parameters(Params), body(B)), Env, state(NewEnv, none)) :-
-	define_var(Name, lox_function(Params, B, closure([])), Env, NewEnv), !.
+	define_var(Name, lox_function(Params, B, closure(Env)), Env, NewEnv), !.
 
 eval_args([], Env, Env, []).
 
@@ -217,9 +217,9 @@ evaluate_params(Args, Params, ClosureEnv, EvaluatedArgs, Env3) :-
 	eval_args(Args, ClosureEnv, Env, EvaluatedArgs),
 	define_params(Params, EvaluatedArgs, Env, Env3).
 
-evaluate(call(callee(V), paren(_), arguments(Args)), Env, state(Env3, R)) :-
-	evaluate(V, Env, state(Env, lox_function(Params, Body, closure(_)))),
-	create_new_env(Env, Enclosed),
+evaluate(call(callee(V), paren(_), arguments(Args)), BlockEnv, state(Env3, R)) :-
+	evaluate(V, BlockEnv, state(BlockEnv, lox_function(Params, Body, closure(ClosureEnv)))),
+	env_enclose_with(ClosureEnv, BlockEnv, Enclosed),
 	evaluate_params(Args, Params, Enclosed, EvaluatedArgs, Env2),
 	call_function(Body, EvaluatedArgs, Env2, state(Env3, Res)), 
 	% Extracting result.

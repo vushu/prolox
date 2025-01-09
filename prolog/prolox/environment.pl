@@ -1,6 +1,8 @@
-:- module(environment,[create_new_env/2, define_var/4, get_var/3, assign_var/4, extract_enclosing/2]).
+:- module(environment,[create_new_env/2, define_var/4, get_var/3, assign_var/4, extract_enclosing/2, env_enclose_with/3]).
 
 create_new_env(Enclosing, env([], Enclosing)).
+
+env_enclose_with(env(C, _), With, env(C, With)).
 
 extract_enclosing(env(_, none), env([], none)) :- !.
 extract_enclosing(env(_, C), C).

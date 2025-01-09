@@ -24,14 +24,15 @@ tokens(Z)-->
 
 nested_functions :-
 	Input = "fun makeCounter() {
+			var fortytwo = 42;
 			fun count() {
-				print \"HEJ\";
+				return fortytwo + 45;
 			}
 			print 31;
 			return count;
 		}
 		var counter = makeCounter();
-		counter();
+		print counter();
 		print 232;",
 	scan(Input, Tokens),
 	parse(Tokens, Stmts),

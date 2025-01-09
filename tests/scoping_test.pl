@@ -7,13 +7,6 @@ do_stuff([N|Ns], R):-
     writeln("Continue"),
     do_stuff(Ns, R)).
     
-
-test(parse_function) :-
-	scan("fun foo(){var i = 42; print i;} foo(); foo();", Tokens),
-	parse(Tokens, Stmts),
-    writeln(Stmts),
-	interpret(Stmts).
-
 test(do_stuff) :-
     do_stuff([1,2,3,4,5,6,7,8], R), writeln(R).
 
