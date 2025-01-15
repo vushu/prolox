@@ -11,6 +11,4 @@ test(do_stuff) :-
     do_stuff([1,2,3,4,5,6,7,8], R), writeln(R).
 
 
-
-
 :- end_tests(scoping_test).

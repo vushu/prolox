@@ -21,6 +21,18 @@ tokens(Z)-->
 		Z = []
 		}.
 
+fibonacci :-
+	scan("
+	fun fib(n) {
+  		if (n <= 1) { return n; }
+  		return fib(n - 2) + fib(n - 1);
+	}
+
+	for (var i = 0; i < 20; i = i + 1) {
+  		print fib(i);
+	}", Tokens),
+	parse(Tokens, Stmts),
+	interpret(Stmts).
 
 nested_functions :-
 	Input = "fun makeCounter() {
@@ -48,7 +60,8 @@ main :-
 	% scan("    for(var i = 0; i <= 5; i = i + 1) { print i; }    ", Tokens),
 % parse(Tokens, Stmts),
 % interpret(Stmts),
-nested_functions.
+% nested_functions.
+	fibonacci.
 
 
 msms : writeln("").

@@ -19,6 +19,8 @@ test-loop:
 	swipl -s tests/loop_test.pl -g run_tests,halt -t 'halt(1)'
 test-scoping:
 	swipl -s tests/scoping_test.pl -g run_tests,halt -t 'halt(1)'
+test-fibonacci:
+	swipl -s tests/fibonacci_test.pl -g run_tests,halt -t 'halt(1)'
 main:
 	swipl -o run_prolox -g main -c prolog/prolox/main.pl
 
