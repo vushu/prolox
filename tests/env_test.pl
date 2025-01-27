@@ -44,6 +44,11 @@ test(assign_env_more_enclosing) :-
 	assign_var(a, "A lonkey", Third, Last), 
 	get_var(a, Last, "A lonkey").
 
+test(assign_in_closure) :-
+	E = env([lol-10000],env([globalvar-42],env([clock-lox_function([],builtin(clock_timer),closure(env([],none)))],none))),
+	Expected = env([lol-10000],env([globalvar-10000],env([clock-lox_function([],builtin(clock_timer),closure(env([],none)))],none))),
+	assign_var(globalvar, 10000, E, Expected).
+
 test(extract_enclosing) :-
 	Env = env([i-2],env([clock-lox_function([identifier(arg)],builtin(clock_timer),closure(env([],none)))],none)),
 	extract_enclosing(Env, env([clock-lox_function([identifier(arg)],builtin(clock_timer),closure(env([],none)))],none)).

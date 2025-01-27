@@ -28,7 +28,7 @@ fibonacci :-
   		return fib(n - 2) + fib(n - 1);
 	}
 
-	for (var i = 0; i < 20; i = i + 1) {
+	for (var i = 0; i < 1; i = i + 1) {
   		print fib(i);
 	}", Tokens),
 	parse(Tokens, Stmts),
@@ -50,6 +50,21 @@ nested_functions :-
 	parse(Tokens, Stmts),
 	interpret(Stmts).
 
+simple_nested :-
+	Input = "
+		var globalvar = 42;
+		fun closureboo(lol) {
+			globalvar = lol;
+			print globalvar;
+		} 
+		closureboo(10000);
+		print globalvar;
+		",
+	scan(Input, Tokens),
+	parse(Tokens, Stmts),
+	interpret(Stmts).
+
+
 phrase_string_codes :-
 	string_codes("   func    ", Input),
 	phrase(tokenize(T),
@@ -61,6 +76,7 @@ main :-
 % parse(Tokens, Stmts),
 % interpret(Stmts),
 % nested_functions.
+% simple_nested.
 	fibonacci.
 
 

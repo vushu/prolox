@@ -19,10 +19,8 @@ assign_var(Key, Value, env([Key-_|T], R), env([Key-Value|T], R)) :-
 	!.
 
 assign_var(Key, Value, env([Key2-Value2|T], Enc), env([Key2-Value2|NewTail], Enc)) :-
-	Key \= Key2,!,
-	assign_var(Key, Value, 
-		env(T, Enc), 
-		env(NewTail, Enc)).
+	(Key \= Key2 ->
+	assign_var(Key, Value, env(T, Enc), env(NewTail, Enc))).
 
 assign_var(Key, Value, env(S, Enc), env(S, R)) :-
 	!, 
@@ -30,9 +28,3 @@ assign_var(Key, Value, env(S, Enc), env(S, R)) :-
 
 assign_var(_, _, env([], _), none) :-
 	writeln("Failed to assign"), halt.
-
-%When going out of scope
-% extract_enclosing(env(Foo, none), env(Foo,none)) :- writeln("this case wtf") .
-
-% % extract_enclosing(env([_], Enclosed), Enclosed) :- writeln("NONO this case wtf") .
-% extract_enclosing(env(Foo, Enclosed), Enclosed) :- writeln("Asdfasdfasdf").
