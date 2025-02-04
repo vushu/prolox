@@ -67,4 +67,15 @@ test(extract_enclosing4) :-
 	Env= env([],env([i-5],env([clock-lox_function([identifier(arg)],builtin(clock_timer),closure(env([],none)))],none))),
 	extract_enclosing(Env,env([i-5],env([clock-lox_function([identifier(arg)],builtin(clock_timer),closure(env([],none)))],none))).
 
+test(update_values) :-
+	Env1 = env([i-9], none),
+	Env2 = env([i-0, j-9], none),
+	merge_envs(Env1, Env2, env([i-9, j-9], none)).
+
+test(update_values2) :-
+	Env1 = env([i-9], none),
+	Env2 = env([i-0, j-9], none),
+	merge_envs(Env1, Env2, env([i-9, j-9], none)).
+
+
  :- end_tests(env).

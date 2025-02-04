@@ -131,8 +131,8 @@ evaluate(variable(token(identifier(VarName), _)), Env, state(Env, R)) :-
 	% writeln("Getting -------"), writeln(VarName),
 	% writeln(Env),
 	% writeln("Getting -------"), writeln(VarName),
-	get_var(VarName, Env, R), 
-	writeln("Get Donw -------"), writeln(R).
+	get_var(VarName, Env, R).
+	% writeln("Get Donw -------"), writeln(R).
 
 evaluate(var_decl(name(token(identifier(Name), _)), initializer(Stmt)), Env, state(Env2, none)) :-
 	evaluate(Stmt,
@@ -146,8 +146,8 @@ evaluate(assignment(assign_name(variable(token(identifier(VarName), _))), value(
 	evaluate(ValueExpr, Env, state(Env1, Value)),
 	% write(Value), writeln(" < ----- VALUE "),
 	% write(VarName), writeln(" < ----- VarNAME "),
-	% writeln(Env1),
 	assign_var(VarName, Value, Env1, EnvAssigned).
+	% writeln(EnvAssigned).
 
 evaluate(if(condition(Expr), then(Stmt), else(none)), Env, State) :-
 	evaluate(Expr, Env, state(Env1, X)),
@@ -181,18 +181,18 @@ evaluate(block(Stmts), Env, state(Env1, R)) :-
 	create_new_env(Env, Enclosed),
 	execute_block(Stmts, Enclosed, Env, state(Env1, R)).
 
-execute_block(Stmts, CurrentEnv, GlobalEnv, state(UpdatedEnv, R)) :-
-	% print_env(CurrentEnv),
-	evaluate_block_rest(Stmts, state(CurrentEnv, none), state(Env1, R)),
-	% print_env(Env1),
-	extract_enclosing(Env1, UpdatedEnv).
+% Returning global as previous
+execute_block(Stmts, CurrentEnv, GlobalEnv, state(ExtractedEnv, R)) :-
+	evaluate_block_rest(Stmts, CurrentEnv, state(UpdatedEnv, R)), 
+	% writeln("UPDATED--------------------------------"),
+	extract_enclosing(UpdatedEnv, ExtractedEnv).
 
 
-evaluate_block_rest([], L, L).
+evaluate_block_rest([], L, state(L, none)).
 
-evaluate_block_rest([Stmt|Stmts], state(Env, _), State) :-
-	evaluate(Stmt, Env, state(Env1, Res)),
-	(Res = return_value(_) -> State = state(Env1, Res); evaluate_block_rest(Stmts, state(Env1, Res), State)).
+evaluate_block_rest([Stmt|Stmts], CurrentEnv, State) :-
+	evaluate(Stmt, CurrentEnv, state(Env1, Res)),
+	(Res = return_value(_) -> State = state(Env1, Res); evaluate_block_rest(Stmts, Env1, State)).
 
 evaluate(function(token(identifier(Name), _), parameters(Params), body(B)), Env, state(NewEnv, none)) :-
 	define_var(Name, lox_function(Params, B, closure(Env)), Env, NewEnv), !.
@@ -225,9 +225,9 @@ length(Params, L1),
 evaluate_params_defined_closure(Args, Params, ClosureEnv, GlobalEnv,  EvaluatedArgs, GEnv, DefinedClosureEnv) :-
 	(length(Args, L), L > 255 -> writeln("Too many arguments"), halt;
 	check_arity(Args, Params)),
-	writeln("Function Params"),
-	writeln(Params),
-	writeln("Function Params"),
+	% writeln("Function Params"),
+	% writeln(Params),
+	% writeln("Function Params"),
 	eval_args(Args, GlobalEnv, GEnv, EvaluatedArgs),
 	define_params(Params, EvaluatedArgs, ClosureEnv, DefinedClosureEnv).
 
@@ -240,10 +240,12 @@ evaluate(call(callee(V), paren(_), arguments(Args)), BlockEnv, state(Env3, R)) :
 	(Res = return_value(M) -> R = M; R = Res).
 
 call_function(block(Stmts), _, CurrentEnv, GEnv, state(Env1, R)) :-
-	writeln("---------------------------------->>>>"),
-	writeln(CurrentEnv),
-	writeln("---------------------------------->>>>"),
+	% writeln("---------------------------------->>>>"),
+	% writeln(CurrentEnv),
+	% writeln("---------------------------------->>>>"),
+	writeln(GEnv),
 	execute_block(Stmts, CurrentEnv, Env, state(Env1, R)).
+	% merge_envs(Env1, GEnv, REnv).
 
 call_function(builtin(Func), Args, _, Env, State) :-
 	call(Func, Args, Env, State).

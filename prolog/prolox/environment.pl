@@ -1,4 +1,4 @@
-:- module(environment,[create_new_env/2, define_var/4, get_var/3, assign_var/4, extract_enclosing/2, env_enclose_with/3]).
+:- module(environment,[create_new_env/2, define_var/4, get_var/3, assign_var/4, extract_enclosing/2, env_enclose_with/3, merge_envs/3]).
 
 create_new_env(Enclosing, env([], Enclosing)).
 
@@ -28,3 +28,14 @@ assign_var(Key, Value, env(S, Enc), env(S, R)) :-
 
 assign_var(_, _, env([], _), none) :-
 	writeln("Failed to assign"), halt.
+
+merge_envs(none, GEnv, GEnv).
+
+merge_envs(env([Key-Value|_], _), env([Key-_|T2], Closure), env([Key-Value | T2], Closure)).
+
+% merge_envs(env([Key-Value|_], _), env([Key-_|T2], Closure), env([Key-Value | T2], Closure)) :- 
+
+% merge_envs(env([Key-Value|T1], _), env([Key2-Value2|T2]), env([Key2-Value2| NewTail], T2)) :-
+	% (Key \= Key2 -> merge_envs(env([Key-Value], _), env(T1, T2), env(NewTail, T2))).
+
+
