@@ -34,14 +34,14 @@ test(interpret_equality) :-
 	interpret(Stmts).
 
 test(interpret_group) :-
-	scan("print (1 != 1);", Tokens), 
+	scan("1 != 1; 2 + 2;", Tokens), 
 	parse(Tokens, Stmts), 
-	interpret(Stmts).
+	interpret(Stmts, [none, false, 4]).
 
 test(interpret_unary_bang) :-
-	scan("print !!!true;", Tokens), 
+	scan("!!!true;", Tokens), 
 	parse(Tokens, Stmts), 
-	interpret(Stmts).
+	interpret(Stmts, [none, false]).
 
 test(interpret_unary_minus) :-
 	scan("print ---100;", Tokens), 
@@ -62,7 +62,7 @@ test(interpret_block_stmt) :-
 		print 5;
 		 }", Tokens), 
 	parse(Tokens, Stmts), 
-	interpret(Stmts).
+	interpret(Stmts, R), assertion(R = [none, none]).
 
 test(interpret_var_decl) :-
 	scan("var hej = 1;", Tokens), 
@@ -83,7 +83,7 @@ test(interpret_if) :-
 	scan("if (3 > 1) { print 42; }", Tokens), 
 	parse(Tokens, Stmts), 
 	writeln(Stmts), 
-	interpret(Stmts).
+	interpret(Stmts, [none, none]).
 
 test(interpret_if_with_else) :-
 	scan("if (3 < 1) { print 42; } else { print \"Damn\"; }", Tokens), 
@@ -111,8 +111,6 @@ test(interpret_fibonacci) :-
 			b = temp + b;
 		}", Tokens), 
 	parse(Tokens, Stmts), 
-	writeln(Stmts),
-	
 	interpret(Stmts).
 
 test(interpret_for) :-

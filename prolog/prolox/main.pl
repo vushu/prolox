@@ -32,7 +32,7 @@ fibonacci :-
   		print fib(i);
 	}", Tokens),
 	parse(Tokens, Stmts),
-	interpret(Stmts).
+	interpret(Stmts, R), writeln(R).
 
 nested_functions :-
 	Input = "fun makeCounter() {

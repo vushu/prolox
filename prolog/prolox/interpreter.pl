@@ -1,22 +1,23 @@
-:- module(interpreter,[interpret/1, evaluate/3]).
+:- module(interpreter,[interpret/1, interpret/2, evaluate/3]).
 :- use_module(environment).
 :- use_module(builtin_functions).
 
 :- discontiguous evaluate/3.
 
-interpret(Stmts) :-
+interpret(Stmts) :- interpret(Stmts, _).
+interpret(Stmts, R) :-
 	create_new_env(none, Env),
 	define_builtins(Env, Env2),
-	once(evaluate_rest(Stmts, state(Env2, none), NewState)),
+	once(evaluate_rest(Stmts, state(Env2, none), state(Env3, R))),
 	writeln("---------------------------------- DONE INTERPRETING --------------------------"),
-	writeln("State: "), writeln(NewState),
+	writeln("Env: "), writeln(Env3),
 	writeln("-------------------------------------------------------------------------------").
 
-evaluate_rest([], LastState, LastState).
+evaluate_rest([], state(Env, R), state(Env, [R])).
 
-evaluate_rest([Stmt|Stmts], state(Env, _), NewState) :-
+evaluate_rest([Stmt|Stmts], state(Env, R), state(Env2, [R|R2])) :-
 	evaluate(Stmt, Env, S),
-	evaluate_rest(Stmts, S, NewState).
+	evaluate_rest(Stmts, S, state(Env2, R2)).
 
 
 evaluate(print(Stmt), Env, state(Env1, none)) :-
