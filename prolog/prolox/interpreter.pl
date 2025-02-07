@@ -182,10 +182,13 @@ evaluate(block(Stmts), Env, state(Env1, R)) :-
 	execute_block(Stmts, Enclosed, Env, state(Env1, R)).
 
 % Returning global as previous
-execute_block(Stmts, CurrentEnv, GlobalEnv, state(ExtractedEnv, R)) :-
+execute_block(Stmts, CurrentEnv, GlobalEnv, state(GlobalEnv, R)) :-
 	evaluate_block_rest(Stmts, CurrentEnv, state(UpdatedEnv, R)), 
-	% writeln("UPDATED--------------------------------"),
-	extract_enclosing(UpdatedEnv, ExtractedEnv).
+	writeln("UPDATED--------------------------------"),
+
+	% writeln(CurrentEnv),
+	flatten_env(UpdatedEnv, F), writeln(F).
+
 
 
 evaluate_block_rest([], L, state(L, none)).
@@ -243,8 +246,9 @@ call_function(block(Stmts), _, CurrentEnv, GEnv, state(Env1, R)) :-
 	% writeln("---------------------------------->>>>"),
 	% writeln(CurrentEnv),
 	% writeln("---------------------------------->>>>"),
-	writeln(GEnv),
 	execute_block(Stmts, CurrentEnv, Env, state(Env1, R)).
+	% flatten_env(CurrentEnv, F), writeln(F).
+
 	% merge_envs(Env1, GEnv, REnv).
 
 call_function(builtin(Func), Args, _, Env, State) :-

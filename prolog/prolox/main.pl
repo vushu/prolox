@@ -2,6 +2,8 @@
 :- use_module(parser).
 :- use_module(interpreter).
 :- use_module(library(dcg/basics)).
+:- use_module(environment).
+
 
 
 tokenize(Z)-->
@@ -77,6 +79,19 @@ main :-
 % interpret(Stmts),
 % nested_functions.
 % simple_nested.
+	% Env1 = env([], env([i-400, p-100], none)),
+	% Env2 = env([j-9], env([i-1, p-9], none)),
+
+
+	% merge_envs(Env1, Env2, Env3), writeln(Env3).
+	% FlattenEnv = [o-"Papa",j-9, j-98000, j-898989, i-1121, i-9000, j-"Lolex", i-"funcky"],
+	% Env = env([j-111], env([i-23], env([o-1], none))),
+	% assign_many_vars(FlattenEnv, Env, UpdatedEnv), writeln(UpdatedEnv).
+	% Env = env([],env([n-0],env([],env([clock-lox_function([],builtin(clock_timer),closure(env([],none)))],none)))),
+	% flatten_env(Env, F), writeln(F).
+
+
+
 	fibonacci.
 
 

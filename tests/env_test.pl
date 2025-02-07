@@ -70,12 +70,49 @@ test(extract_enclosing4) :-
 test(update_values) :-
 	Env1 = env([i-9], none),
 	Env2 = env([i-0, j-9], none),
-	merge_envs(Env1, Env2, env([i-9, j-9], none)).
+	merge_envs(Env1, Env2, Env3), assertion(Env3 = env([i-9, j-9], none)).
 
 test(update_values2) :-
-	Env1 = env([i-9], none),
-	Env2 = env([i-0, j-9], none),
-	merge_envs(Env1, Env2, env([i-9, j-9], none)).
+	Env1 = env([i-42], none),
+	Env2 = env([j-9, i-1], none),
+	merge_envs(Env1, Env2, Env3), assertion(Env3 = env([j-9, i-42], none)).
+
+test(update_values3) :-
+	Env1 = env([i-42], none),
+	Env2 = env([j-9], env([i-1], none)),
+	merge_envs(Env1, Env2, Env3), assertion(Env3 = env([j-9], env([i-42], none))).
+
+test(update_values4) :-
+	Env1 = env([i-4], env([p-4], none)),
+	Env2 = env([j-9], env([i-1, p-9], none)),
+	merge_envs(Env1, Env2, Env3), assertion(Env3 = env([j-9], env([i-4, p-4], none))).
+
+test(flatten_env) :-
+	Env = env([j-9], env([i-1, p-9], none)),
+	flatten_env(Env, FlattenEnv), assertion(FlattenEnv = [j-9, i-1, p-9]).
+
+
+
+
+
+
+
+% test(update_values3) :-
+% 	Env1 = env([i-9123], none),
+% 	Env2 = env([],env([i-0, j-9], none)),
+% 	merge_envs(Env1, Env2, env([], env([i-9, j-9], none))).
+
+% test(update_values4) :-
+% 	Env1 = env([i-112], none),
+% 	Env2 = env([], env([], env([i-0, j-9]), none)),
+% 	merge_envs(Env1, Env2, env([], env([], env([i-1231, j-9]), none))).
+
+
+% test(update_values3) :-
+% 	Env1 = env([], env([i-9], none)),
+% 	Env2 = env([i-0, j-9], none),
+% 	merge_envs(Env1, Env2, env([i-9, j-9], none)).
+
 
 
  :- end_tests(env).
