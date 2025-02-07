@@ -56,12 +56,28 @@ phrase_string_codes :-
 		Input),
 	writeln(T).
 
+scoping_test :- 
+	Input = "var a = \"Global\";
+	{
+		fun mama() {
+			print a;
+		}
+
+		mama();
+		var a = \"Block\";
+		mama();
+	}", scan(Input, Tokens), 
+writeln(Tokens),
+	parse(Tokens, Stmts),
+	interpret(Stmts).
+
 main :-
 	% scan("    for(var i = 0; i <= 5; i = i + 1) { print i; }    ", Tokens),
 % parse(Tokens, Stmts),
 % interpret(Stmts),
 % nested_functions.
-	fibonacci.
+	scoping_test.
+	% fibonacci.
 
 
 msms : writeln("").

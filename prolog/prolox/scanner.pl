@@ -56,8 +56,8 @@ skip_until_newline(Line, NextLine) --> [X],  {format("Skipping: ~w \n", X)}, ski
 skip_until_newline(_, _) --> [], tokens([]), !.
 
 get_string(String) --> ['"'], extract_string(String).
-extract_string([Ch| Rest]) --> [Ch], extract_string(Rest).
 extract_string([]) --> ['"'].
+extract_string([Ch|Rest]) --> [Ch], extract_string(Rest).
 
 get_alpha([Ch| Rest]) --> is_alphabet(Ch), extract_alpha(Rest).
 extract_alpha([Ch | Rest]) --> is_alpha_numberic(Ch), extract_alpha(Rest).

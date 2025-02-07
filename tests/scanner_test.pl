@@ -24,6 +24,10 @@ test(scan_string) :-
 		[token(
 			string("mystring"), 1)]).
 
+test(scan_string2) :-
+	scan("\"foo\" \"bar\"", Tokens), assertion(Tokens = [token(string("foo"),1),token(string("bar"),1)]).
+
+
 test(scan_string) :-
 	scan("2> 2+ 2", Tokens), 
 	writeln("----------------"), 
