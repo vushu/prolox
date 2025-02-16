@@ -2,7 +2,8 @@
 
 create_new_env(Enclosing, env([], Enclosing)).
 
-env_enclose_with(env(C, _), With, env(C, With)).
+env_enclose_with(env(C, none), With, env(C, With)).
+env_enclose_with(env(C, X), With, env(C, S)) :- writeln("Append to back"), env_enclose_with(X, With, S).
 
 extract_enclosing(env(_, none), env([], none)) :- !.
 extract_enclosing(env(_, C), C).
@@ -30,9 +31,3 @@ assign_var(Key, Value, env(S, Enc), env(S, R)) :-
 
 assign_var(_, _, env([], _), none) :-
 	writeln("Failed to assign"), halt.
-
-%When going out of scope
-% extract_enclosing(env(Foo, none), env(Foo,none)) :- writeln("this case wtf") .
-
-% % extract_enclosing(env([_], Enclosed), Enclosed) :- writeln("NONO this case wtf") .
-% extract_enclosing(env(Foo, Enclosed), Enclosed) :- writeln("Asdfasdfasdf").

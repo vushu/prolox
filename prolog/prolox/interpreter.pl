@@ -9,9 +9,12 @@ interpret(Stmts, R) :-
 	create_new_env(none, Env),
 	define_builtins(Env, Env2),
 	once(evaluate_rest(Stmts, state(Env2, none), state(Env3, R))),
-	writeln("---------------------------------- DONE INTERPRETING --------------------------"),
-	writeln("Env: "), writeln(Env3),
-	writeln("-------------------------------------------------------------------------------").
+	writeln("--------------------------- DONE INTERPRETING --------------------------"),
+	writeln("Env: "), 
+	writeln(Env3),
+	writeln("Results: "), 
+	writeln(R),
+	writeln("------------------------------------------------------------------------").
 
 evaluate_rest([], state(Env, R), state(Env, [R])).
 
@@ -170,8 +173,7 @@ while_loop(Expr, Stmt, Env, state(Env3, none)) :-
 
 
 evaluate(block(Stmts), Env, state(Env1, R)) :-
-	create_new_env(Env, Enclosed),
-	execute_block(Stmts, Enclosed, Env, state(Env1, R)).
+	execute_block(Stmts, env([], Env), Env, state(Env1, R)).
 
 execute_block(Stmts, CurrentEnv, _, state(UpdatedEnv, R)) :-
 	evaluate_block_rest(Stmts, state(CurrentEnv, none), state(Env1, R)),
@@ -221,7 +223,6 @@ evaluate_params(Args, Params, ClosureEnv, EvaluatedArgs, Env3) :-
 evaluate(call(callee(V), paren(_), arguments(Args)), BlockEnv, state(Env3, R)) :-
 	evaluate(V, BlockEnv, state(BlockEnv, lox_function(Params, Body, closure(ClosureEnv)))),
 	env_enclose_with(ClosureEnv, BlockEnv, Enclosed),
-	% create_new_env(ClosureEnv, Enclosed),
 	evaluate_params(Args, Params, Enclosed, EvaluatedArgs, Env2),
 	call_function(Body, EvaluatedArgs, Env2, BlockEnv, state(Env3, Res)), 
 	% Extracting result.
